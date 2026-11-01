@@ -1,0 +1,7 @@
+data/raw/
+data/processed/
+*.CEL
+*.CEL.gz
+*.tar
+.DS_Store
+.Rhistory

@@ -1,0 +1,7 @@
+step	n
+probes_total	54675
+probes_with_symbol	44647
+probes_dropped_unmapped	10028
+probes_dropped_multimap	1524
+probes_kept	43123
+genes_kept	20823
