@@ -35,12 +35,13 @@ age. Stated, not fixed (CLAUDE.md §2).
 | Overall-correlation metric by group | control 0.9529, BMD 0.9704, DMD 0.9803 |
 | Within-group metric by group | control **0.9839**, BMD 0.9757, DMD 0.9855 |
 
-**⚠ STOP point, awaiting Aziz's sign-off.** The spec's "median correlation with all other
-samples" flagged three controls — but that metric is confounded by group size here (28 of 34
-arrays are dystrophic, only 6 are healthy), and on the within-group metric those same controls
-score *highest*. RLE and NUSE, the proper array-quality measures, flag nothing.
-**Decision taken to keep all 34**, so the session could continue; step 13's leave-one-out
-tests sensitivity to exactly these samples. Aziz to confirm or overrule.
+**✅ STOP point CLOSED — Aziz, 2026-11-02: keep all 34 samples.** RLE and NUSE, the measures
+that actually test array quality, flag nothing. The spec's "median correlation with all other
+samples" is confounded by group size here (28 of 34 arrays are dystrophic, only 6 healthy), so
+all 6 controls scored lowest by construction; on the within-group metric those same controls
+score *highest*. Two samples remain mildly flagged within group (GSM2934803, GSM2934813) and
+are kept; step 13's leave-one-out tests whether either is carrying the result.
+Full reasoning in `docs/methods_log.md`.
 
 ## Step 3 — probes to genes (`scripts/03_annotate_collapse.R`)
 
@@ -185,10 +186,10 @@ Caveat per CLAUDE.md §12: this covariate also absorbs real disease signal, so r
 
 | Step | Status |
 |---|---|
-| 8 — shuffled-label baseline, 1,000 shuffles | **running** (~98 min projected) |
-| 11 — 3′UTR-matched null, 25 families × 1,000 draws | **running** |
-| 10b — detection limit, 6 × 100 simulations | queued behind 11 |
-| 9 — direct BMD vs DMD label shuffle | queued |
+| 8 — shuffled-label baseline, 1,000 shuffles | **STARTED, STOPPED UNFINISHED, NO RESULT.** Hit a nested-parallelism bug (52% of CPU lost to context switching; ~19% done in 99 min). Bug fixed in the script; must be re-run from scratch. |
+| 11 — 3′UTR-matched null, 25 families × 1,000 draws | **crashed** on a `setorder(-abs(x))` bug, now fixed; not re-run |
+| 10b — detection limit, 6 × 100 simulations | started, killed (was starved of cores); not re-run. **Ruler banked: +0.269 log2 units = 20.5% linear.** |
+| 9 — direct BMD vs DMD label shuffle | not started (same `setorder` bug was present, now fixed) |
 | 13 — leave-one-out | not started (CLAUDE.md "if time") |
 | 14 — DMD subsampled to 11 | not started (CLAUDE.md "if time") |
 | 15 — pig overlap | **BLOCKED**: Reschke et al. 2026 Table 1 not obtained |

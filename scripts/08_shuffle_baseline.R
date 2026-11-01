@@ -37,7 +37,7 @@ one <- function(i) {
   nes <- lapply(c("BMDvsCtrl", "DMDvsCtrl"), function(cn) {
     tt <- topTable(f, coef = cn, number = Inf, sort.by = "none")
     rk <- sort(setNames(tt$t, rownames(tt)), decreasing = TRUE)
-    r <- fgsea(fs, rk, minSize = 15, maxSize = Inf, nPermSimple = NPERM_NULL, eps = 0)
+    r <- fgsea(fs, rk, minSize = 15, maxSize = Inf, nPermSimple = NPERM_NULL, eps = 0, nproc = 1)
     setNames(r$NES, r$pathway)
   })
   fams <- intersect(names(nes[[1]]), names(nes[[2]]))

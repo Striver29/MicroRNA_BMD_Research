@@ -57,7 +57,7 @@ one <- function(f, i) {
   tt <- topTable(fit, coef = "BMDvsCtrl", number = Inf, sort.by = "none")
   rk <- sort(setNames(tt$t, rownames(tt)), decreasing = TRUE)
   sets <- c(fs, list(PLANTED = planted))        # tested among all families, as the spec says
-  r <- as.data.table(fgsea(sets, rk, minSize = 15, maxSize = Inf, nPermSimple = NPERM, eps = 0))
+  r <- as.data.table(fgsea(sets, rk, minSize = 15, maxSize = Inf, nPermSimple = NPERM, eps = 0, nproc = 1))
   p <- r[pathway == "PLANTED"]
   data.table(f = f, rep = i, NES = p$NES, pval = p$pval, padj = p$padj,
              caught = isTRUE(p$NES > 0 && p$padj < 0.05))

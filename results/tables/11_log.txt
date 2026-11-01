@@ -15,3 +15,8 @@ genes on the array: 20823  with a 3'UTR length: 15805
 10:     10  1580   4802  24505
 
 testing 25 families against 1000 UTR-matched sets each
+done in 16.0 min
+Error in setorderv(x, cols, order, na.last) : 
+  some columns are not in the data.table: [abs]
+Calls: setorder -> setorderv -> stopf -> raise_condition -> signal
+Execution halted
