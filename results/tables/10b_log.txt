@@ -1,0 +1,6 @@
+RULER = mean DMD-vs-ctrl log2FC of 1158 miR-29 targets minus the other 19665 genes
+      = +0.2686 log2 units  (= 20.5% change on the linear scale)
+planted sets copy miR-29's 3'UTR decile profile; set size = 1158 genes
+
+Timing: 207.9 s per run; projected 693.0 min for 6 x 100 on 3 cores
+Running 600 simulations ...

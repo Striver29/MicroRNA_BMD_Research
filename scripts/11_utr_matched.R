@@ -64,8 +64,8 @@ res <- rbindlist(bplapply(top_fams, function(f) {
   rbindlist(lapply(contrasts, function(cn) {
     rk <- ranks[[cn]]
     # real NES recomputed on the UTR-restricted gene set so it is comparable to the nulls
-    rr <- fgsea(list(real = pr$genes), rk, minSize = 15, maxSize = Inf, nPermSimple = 10000, eps = 0)
-    nn <- fgsea(sets, rk, minSize = 15, maxSize = Inf, nPermSimple = 1000, eps = 0)
+    rr <- fgsea(list(real = pr$genes), rk, minSize = 15, maxSize = Inf, nPermSimple = 10000, eps = 0, nproc = 1)
+    nn <- fgsea(sets, rk, minSize = 15, maxSize = Inf, nPermSimple = 1000, eps = 0, nproc = 1)
     v <- nn$NES[is.finite(nn$NES)]
     data.table(family_id = f, contrast = cn, size_utr = length(pr$genes),
                NES_real = rr$NES[1], padj_fgsea = rr$padj[1],
@@ -76,7 +76,7 @@ res <- rbindlist(bplapply(top_fams, function(f) {
 cat(sprintf("done in %.1f min\n", as.numeric(difftime(Sys.time(), t0, units = "mins"))))
 
 res[, utr_matched_q := p.adjust(utr_matched_p, "BH"), by = contrast]
-setorder(res, contrast, utr_matched_p, -abs(NES_real))
+res[, absNES := abs(NES_real)]; setorder(res, contrast, utr_matched_p, -absNES)
 dir.create("results/tables", recursive = TRUE, showWarnings = FALSE)
 fwrite(res, "results/tables/11_utr_matched.tsv", sep = "\t")
 

@@ -31,7 +31,7 @@ one <- function(i) {
   f <- eBayes(contrasts.fit(lmFit(mp, d), makeContrasts(BMDvsDMD = BMD - DMD, levels = d)))
   tt <- topTable(f, coef = "BMDvsDMD", number = Inf, sort.by = "none")
   rk <- sort(setNames(tt$t, rownames(tt)), decreasing = TRUE)
-  r <- fgsea(fs, rk, minSize = 15, maxSize = Inf, nPermSimple = NPERM_NULL, eps = 0)
+  r <- fgsea(fs, rk, minSize = 15, maxSize = Inf, nPermSimple = NPERM_NULL, eps = 0, nproc = 1)
   setNames(r$NES, r$pathway)[names(fs)]
 }
 
@@ -54,7 +54,7 @@ res <- rbindlist(lapply(names(fs), function(f) {
              null_mean = mean(v), null_sd = sd(v), n_null = length(v))
 }))
 res[, shuffle_q := p.adjust(shuffle_p, "BH")]
-setorder(res, shuffle_p, -abs(NES_BMDvsDMD))
+res[, absNES := abs(NES_BMDvsDMD)]; setorder(res, shuffle_p, -absNES)
 dir.create("results/tables", recursive = TRUE, showWarnings = FALSE)
 fwrite(res, "results/tables/09_bmd_vs_dmd.tsv", sep = "\t")
 

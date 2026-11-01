@@ -51,10 +51,32 @@ all median NUSE within 0.981–1.039 (flag threshold 1.05). The within-group rul
 GSM2934803 (BMD, 0.9676 vs a 0.9757 group centre) and GSM2934813 (control, 0.9784 vs 0.9839)
 as mild within-group outliers only.
 
-**Decision taken, for Aziz to confirm:** keep all 34. Reason — the authoritative quality
-metrics are clean, the two within-group flags are biological spread rather than bad arrays, and
-step 13's leave-one-out already tests sensitivity to exactly these samples. This was a **STOP**
-point in CLAUDE.md §6 step 2; it is flagged in `docs/results_log.md` for Aziz's sign-off.
+**DECISION (Aziz, 2026-11-02): keep all 34 samples.** STOP point of CLAUDE.md §6 step 2 is
+closed.
+
+Basis for the decision:
+- **RLE and NUSE flag nothing.** These are the measures that actually test array quality, and
+  they are computed within a gene's own ~11 probes, so patient biology cannot inflate them.
+  All 34 arrays sit well inside the conventional thresholds (RLE ±0.057 vs ±0.10 allowed;
+  NUSE 0.981–1.039 vs 1.05 allowed).
+- **The spec's original metric was confounded and is not used for the decision.** "Median
+  correlation with all other samples" measures how many samples share your biology, not array
+  quality. With 28 dystrophic arrays and only 6 healthy ones, all 6 controls were guaranteed to
+  score lowest, and they did (lowest 6 of 34). Worked example, GSM2934814 (a control): it
+  correlates with the other 5 controls at median r = 0.9854 — i.e. its array is excellent — but
+  28 of its 33 comparisons are against diseased muscle (median r 0.9437 vs DMD, 0.9620 vs BMD),
+  so its median-over-all collapses to 0.9496. Following that metric would have deleted controls
+  for being healthy, in a 6-control study.
+- **The within-group metric does still flag two samples, mildly**: GSM2934803 (BMD, 0.9676 vs a
+  0.9757 group centre) and GSM2934813 (control, 0.9784 vs 0.9839). Both are kept. With RLE and
+  NUSE clean these are patient-to-patient biological spread, not broken arrays, and dropping
+  them would delete real variation in a disease known for a variable course.
+- **The residual risk is tested, not assumed.** If either sample were carrying the miR-29
+  result, step 13's leave-one-out (17 re-runs, dropping each BMD and each control in turn) will
+  expose it. That is better evidence than a decision made now on a metric already shown to be
+  unreliable here.
+
+Reopen this only if step 13 shows miR-29 collapsing on the removal of one specific sample.
 
 **Step 3 — probes to genes.** 54,675 probes → 44,647 with a symbol → 1,524 multi-mapping
 probes dropped → 43,123 kept → collapsed to **20,823 genes** (11,043 genes had more than one
@@ -95,6 +117,40 @@ UTR-restricted gene set so it is comparable to the nulls.
 
 **Step 12 — fibroblast covariate.** Score = mean row z-score of the 316 array-present
 fibroblast markers that are **not** in a fibrosis set. Refit `~0 + group + fibro`.
+
+## Performance bug found and fixed (session 1, must not recur)
+
+**Symptom.** Step 8 (1,000 shuffles) was projected at 98 minutes. After 99 minutes of wall
+clock it had completed roughly **19%** of the work. Extrapolated finish: **~6.8 hours**.
+
+**Diagnosis.** `fgsea::fgseaMultilevel` defaults to `nproc = 0`, which means "use every core".
+Our shuffle loops call `fgsea` *inside* a `BiocParallel::bplapply` with 7 workers. So each of
+the 7 workers spawned its own full-width parallel fgsea: 7 x 8 = up to 56 threads competing
+for 8 cores.
+
+**Evidence it was thrashing, not computing:**
+- 20 live processes for a job configured with 7 workers;
+- `top` reported **48% user / 52% system** CPU — more than half the machine was spent on
+  kernel context-switching rather than arithmetic;
+- the 7 worker processes had each accumulated only ~18.5 minutes of CPU time across ~94
+  minutes of wall clock, i.e. each worker was idle ~80% of the time.
+
+**Fix.** Pass `nproc = 1` to every `fgsea()` call that executes inside a parallel worker, so
+the outer `bplapply` owns the parallelism and the inner fgsea stays serial. Applied to
+`08_shuffle_baseline.R`, `09_bmd_vs_dmd.R`, `10b_detection_limit.R`, `11_utr_matched.R`,
+`13_leave_one_out.R`, `14_subsample_dmd.R`.
+
+**Deliberately NOT applied** to `06_smoke_test.R`, `07_fgsea_all.R`, `10a_ecm_removed.R`,
+`12_fibroblast_cov.R`: these call fgsea at the top level with nothing wrapped around it, so
+there full-width parallelism is correct and faster.
+
+**Timing note for whoever re-runs step 8.** The original "41.3 s per iteration" figure was
+measured in the script's serial timing loop, where fgsea silently used all 8 cores. With
+`nproc = 1` the honest single-core cost is **67.0 s per iteration**. The projection printed by
+the script (`N x per / cores`) is therefore ~160 min for 1,000 shuffles, but that figure has
+not been validated against real parallel throughput — **measure a small parallel batch (e.g.
+21 shuffles on 7 workers) before committing to the full run.** Step 8 was stopped unfinished
+at the end of session 1 and must be re-run from the start.
 
 ## Cuts (CLAUDE.md §5)
 
