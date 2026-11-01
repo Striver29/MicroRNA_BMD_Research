@@ -1,0 +1,17 @@
+genes on the array: 20823  with a 3'UTR length: 15805 
+
+== 3'UTR length deciles ==
+    decile     n min_nt max_nt
+     <int> <int>  <int>  <int>
+ 1:      1  1586      3    255
+ 2:      2  1575    256    473
+ 3:      3  1583    474    755
+ 4:      4  1579    756   1107
+ 5:      5  1580   1108   1553
+ 6:      6  1583   1554   2052
+ 7:      7  1577   2053   2710
+ 8:      8  1582   2711   3588
+ 9:      9  1580   3589   4801
+10:     10  1580   4802  24505
+
+testing 25 families against 1000 UTR-matched sets each

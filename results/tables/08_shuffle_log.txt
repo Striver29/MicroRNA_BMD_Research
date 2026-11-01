@@ -1,0 +1,6 @@
+REAL r = 0.9123   REAL slope = 0.9769  (across 128 families)
+
+Timing: 206.7 s for 5 iterations = 41.34 s each (serial).
+Projected for 1000 shuffles on 7 cores: 98.4 min
+
+Running 1000 shuffles on 7 cores ...
