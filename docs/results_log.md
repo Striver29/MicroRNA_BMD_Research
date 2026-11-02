@@ -182,14 +182,85 @@ Caveat per CLAUDE.md §12: this covariate also absorbs real disease signal, so r
 
 ---
 
+## Step 11 — 3′UTR-length-matched null (`scripts/11_utr_matched.R`)
+
+**This is the most sobering result so far, and it must be in the paper.**
+
+Genes with long 3′UTRs appear on many target lists *and* behave alike in disease, so a plain
+random comparison is biased in our favour. We drew 1,000 random gene sets per family that copy
+that family's 3′UTR-length profile decile by decile, and scored them identically.
+
+**A UTR-matched random set already scores NES ≈ +1.6.** Not zero.
+
+| | real NES | UTR-matched null mean | null SD | z | empirical p |
+|---|---|---|---|---|---|
+| miR-29, DMD vs control | 2.222 | **1.592** | 0.096 | **6.56** | 0.000999 |
+| miR-29, BMD vs control | 2.172 | **1.669** | 0.093 | **5.39** | 0.000999 |
+
+*(p = 0.000999 is the floor, 1/1001 — no random set out of 1,000 ever reached the real value.)*
+
+**How to read this.** About **72%** of miR-29's apparent enrichment (1.59 of 2.22) is explained
+by 3′UTR length alone. The footprint is still real — the excess sits **6.5 standard deviations**
+above a properly matched baseline, and not one of 1,000 matched sets came close — but the raw
+NES of 2.22 **badly overstates** the effect. Never quote NES as if zero were the baseline.
+
+**All 25 top families survived at q < 0.05**, so this step validates the method broadly rather
+than singling out miR-29. By z-score miR-29 ranks 2nd in DMD vs control (behind miR-1/206).
+
+## Step 13 — leave-one-out (`scripts/13_leave_one_out.R`) — 7.3 min
+
+Dropped each of the 11 BMD and 6 control samples in turn, 17 full re-runs.
+
+| | full data | range across 17 re-runs | significant in |
+|---|---|---|---|
+| miR-29, BMD vs control | +2.169 | +2.120 to +2.186 | **17/17** |
+| miR-29, BMD vs DMD | −1.590 | −1.674 to −1.500 | **17/17** |
+
+miR-29 stayed **rank 1 of 128 in every single BMD-vs-DMD run**. Top-20 family list overlapped
+the full-data list by 18–20 of 20 in every run.
+
+**This closes the step-2 QC question.** The two within-group-flagged samples are harmless:
+- **GSM2934803** (BMD): largest effect of any sample, and still 18/20 overlap; miR-29 rank 1.
+- **GSM2934813** (control): 19/20 overlap.
+
+**GSM2934804** (disputed severity, CLAUDE.md §2 robustness item) is also immaterial: dropping it
+gives NES +2.156 (vs +2.169) and −1.507 (vs −1.590), rank 1 either way. **Item closed.**
+
+## Step 14 — DMD subsampled to n = 11 (`scripts/14_subsample_dmd.R`) — 31.1 min
+
+**⚠ A negative result that changes how the headline must be phrased.**
+
+| | miR-29 NES vs control | families significant |
+|---|---|---|
+| full DMD (n = 17) | 2.224 | 103 / 128 |
+| **DMD cut to 11**, 100 draws | **median 2.167** (2.074–2.258) | median 102 (98–107) |
+| **actual BMD (n = 11)** | **2.169** | 104 / 128 |
+
+**53.0%** of the DMD-at-n=11 draws land at or below BMD's value — a coin flip. BMD sits in the
+middle of the distribution DMD itself produces at matched sample size.
+
+**So: measured against healthy controls, BMD's miR-29 footprint is NOT detectably weaker than
+DMD's.** The apparent gap (2.169 vs 2.224) is entirely within sample-size noise.
+
+**Why this does not contradict the direct comparison.** NES is a *rank* measure and it
+saturates: it asks "are the targets bunched at the up end?", not "how far did they move?" In
+both diseases miR-29's targets sit firmly at the up end, so both score ≈ 2.2. The magnitudes
+differ greatly — COL1A1 is **+2.52 in BMD vs +4.06 in DMD** — and only the direct BMD-vs-DMD
+contrast can see that.
+
+**Required phrasing for the paper.** Do **not** write "BMD's miR-29 footprint is weaker than
+DMD's" on the basis of the vs-control scores. Write:
+
+> BMD shows the **same miR-29 footprint pattern** as DMD. The **direct** BMD-vs-DMD comparison
+> shows miR-29 targets are significantly **less elevated** in BMD, consistent with milder
+> disease; but the enrichment strength measured against healthy controls is indistinguishable
+> between the two groups at matched sample size.
+
 ## Still running / not yet run
 
 | Step | Status |
 |---|---|
-| 8 — shuffled-label baseline, 1,000 shuffles | **STARTED, STOPPED UNFINISHED, NO RESULT.** Hit a nested-parallelism bug (52% of CPU lost to context switching; ~19% done in 99 min). Bug fixed in the script; must be re-run from scratch. |
-| 11 — 3′UTR-matched null, 25 families × 1,000 draws | **crashed** on a `setorder(-abs(x))` bug, now fixed; not re-run |
-| 10b — detection limit, 6 × 100 simulations | started, killed (was starved of cores); not re-run. **Ruler banked: +0.269 log2 units = 20.5% linear.** |
-| 9 — direct BMD vs DMD label shuffle | not started (same `setorder` bug was present, now fixed) |
-| 13 — leave-one-out | not started (CLAUDE.md "if time") |
-| 14 — DMD subsampled to 11 | not started (CLAUDE.md "if time") |
+| 9 — direct BMD vs DMD, 500 patient-label shuffles | **running** |
+| 10b — detection limit, 6 × 100 simulations | queued |
+| 8 — shuffled-label baseline, 500 shuffles | queued |
 | 15 — pig overlap | **BLOCKED**: Reschke et al. 2026 Table 1 not obtained |
