@@ -138,3 +138,39 @@ This is the central picture of the smoke test. Read it slowly.
 - **Caveat that must travel with this figure (CLAUDE.md §12):** because scar load really does
   differ by group, putting this score in the model also removes some genuine disease signal.
   Read the adjusted result as "does the footprint survive", never as the headline estimate.
+
+## `results/figures/13_mir29_leave_one_out.png` — does one sample carry the result?
+
+- **y:** which sample was removed (red = a BMD patient, teal = a control). **x:** miR-29's NES
+  when the analysis is re-run without that sample. Two panels: BMD-vs-control and BMD-vs-DMD.
+  Red dashed line = the full-data value.
+- **Worked example.** Removing GSM2934812 gives NES +2.120 in BMD-vs-control. The full-data
+  value is +2.169. So that sample was worth 0.049 of NES — about 2% of the signal.
+- **What to look for:** every bar reaching the dashed line. **They do** — the 17 re-runs span
+  only +2.120 to +2.186 (BMD-vs-control) and −1.674 to −1.500 (BMD-vs-DMD).
+- **What would mean trouble:** one noticeably short bar. That would say "this result exists
+  because of one patient", which at n = 11 would be fatal. Nothing like that appears.
+- **Why this figure settles the QC argument from step 2:** GSM2934803 and GSM2934813 were the
+  two samples flagged as mild within-group outliers. Their bars are indistinguishable from the
+  rest, so keeping them changed nothing.
+
+## `results/figures/14_subsample_dmd.png` — is BMD only weaker because n is smaller?
+
+- **x:** miR-29's NES for DMD vs control, after randomly cutting DMD from 17 patients down to
+  11 — the same number BMD has. **y:** how many of 100 draws landed there.
+  **Red solid** = the real BMD value (2.169). **Blue dashed** = full 17-sample DMD (2.224).
+- **Worked example of the comparison being made.** Draw 1 picks 11 random DMD patients and
+  scores 2.19; draw 2 picks a different 11 and scores 2.13; and so on 100 times. The grey
+  histogram is the answer to "what does DMD look like when it only has 11 patients?"
+- **What we see:** the red line sits **in the middle of the grey bulk** — 53% of draws fall at
+  or below it. The blue dashed line sits at the upper edge, which is expected: more samples
+  give cleaner statistics and a slightly higher score.
+- **Which pattern means what:**
+  - red line *inside* the grey bulk → BMD is within what DMD itself produces at n = 11, so the
+    vs-control difference is **sample size, not biology**. ← **this is what we see**
+  - red line *left of* the grey bulk → BMD really is weaker than DMD even at matched n.
+- **The consequence, which must reach the paper:** we may **not** claim "BMD's miR-29 footprint
+  is weaker than DMD's" from the vs-control scores. NES is a rank measure that saturates — it
+  asks whether targets are bunched at the up end, not how far they moved. The magnitudes do
+  differ (COL1A1 +2.52 in BMD vs +4.06 in DMD), but only the **direct** BMD-vs-DMD contrast
+  can see that.
