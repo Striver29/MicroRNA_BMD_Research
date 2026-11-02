@@ -26,7 +26,7 @@ msigdbr 26.1.1 (MSigDB 2026.1.Hs), data.table 1.18.6.1, ggplot2 4.0.3, BiocParal
 | Muscle-expression source | miRNA Tissue Atlas 2025 (CCB Saarland), `Organ_system = limb_muscle`, mean RPMM ≥ 10 | §4 let us pick the first credible published atlas; see `docs/handoffs.md`. The **RPMM ≥ 10 threshold is ours**, not the spec's — logged here as a parameter to sensitivity-test if asked. |
 | Family size limits | ≥ 15 targets after intersecting with the gene matrix, no maximum | §10 default |
 | Smoke-test thresholds | GO = NES > 0 and padj < 0.05 | §6 step 6 |
-| Shuffle count | **1,000** (step 8), 1,000 (step 9), 1,000 draws (step 11) | §10 default; timing allowed the full 1,000 |
+| Shuffle count | **500** (steps 8 and 9); 1,000 draws (step 11); 100 reps (steps 10b, 14) | §10 permits 500 "if too slow". Measured throughput after the parallelism fix is **20.4 s per shuffle** on 7 workers (21-shuffle parallel batch, not the script's serial extrapolation), so 1,000 shuffles = 5.7 h for step 8 alone and ~11 h for steps 8+9 together. Dropped to 500, giving a minimum empirical p of 1/501 = 0.002 — ample resolution. **Logged per §10.** |
 | fgsea permutations | `nPermSimple = 10000`, `eps = 0` for every reported run | At the default 1,000, 13 of 128 families returned `NA` NES (fgsea's own warning). Raised to 10,000 to remove the NAs. Inside step 11's null draws only, 1,000 is used, because there we need the NES distribution and not a precise p per draw. |
 | Catch criterion (step 10b) | NES > 0 and padj < 0.05 | §10 default |
 | Random seeds | 1 (steps 1–4), 42 (fgsea steps 6, 7, 10a, 12), 20261101 (step 8), 20261102 (step 9), 20261103 (step 11), 20261104 (step 10b) | every script sets its own |
@@ -151,6 +151,21 @@ the script (`N x per / cores`) is therefore ~160 min for 1,000 shuffles, but tha
 not been validated against real parallel throughput — **measure a small parallel batch (e.g.
 21 shuffles on 7 workers) before committing to the full run.** Step 8 was stopped unfinished
 at the end of session 1 and must be re-run from the start.
+
+## Measured runtimes (session 2, after the nproc fix)
+
+Measured with a 21-shuffle parallel batch on 7 workers, which is the only trustworthy way to
+project these jobs — the scripts' own `N x serial_per_iter / cores` estimate ignores the ~53%
+efficiency loss from memory contention and has misled us once already.
+
+| Quantity | Value |
+|---|---|
+| step 8, serial per shuffle (`nproc = 1`) | 67.0 s |
+| step 8, **wall per shuffle on 7 workers** | **20.4 s** |
+| implied parallel efficiency | ~47% (ideal would be 9.6 s) |
+| step 8, 1,000 shuffles | 5.7 h → **rejected** |
+| step 8, 500 shuffles | **2.8 h → chosen** |
+| step 13, 17 leave-one-out runs x 2 contrasts | 7.3 min (measured) |
 
 ## Cuts (CLAUDE.md §5)
 
