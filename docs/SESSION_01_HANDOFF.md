@@ -1,4 +1,74 @@
-# Session 1 handoff — where we are, what to do next
+# Handoff — where we are, what to do next
+
+> **Updated end of session 2 (Mon 2 Nov, ~01:25 Tue 3 Nov).** See `## SESSION 2 STATUS` at the
+> top of this file for the current position; the session-1 notes below it are still accurate
+> for environment and setup.
+
+## SESSION 2 STATUS (read this first)
+
+### Compute left running overnight
+
+When session 2 paused, a chained job was **still running unattended**. It runs three steps back
+to back and writes its progress to `results/tables/queue_log.txt`:
+
+| Step | Status at pause | ETA |
+|---|---|---|
+| 9 — direct BMD vs DMD, 500 patient shuffles | **58% done** | ~02:00 |
+| 10b — detection limit, 600 simulations | queued | ~03:50 |
+| 8 — shared-control baseline, 500 shuffles | queued | ~05:50 |
+
+**First thing to do tomorrow:**
+
+```bash
+cd /Users/abdulazizalshujaa/Documents/MicroRNA_BMD_Research
+cat results/tables/queue_log.txt          # did it reach "ALL DONE"?
+ls -la results/rds/bmd_vs_dmd.rds results/rds/detection_limit.rds results/rds/shuffle_baseline.rds
+```
+
+- If `queue_log.txt` ends with **ALL DONE** and all three `.rds` files exist → everything
+  finished. Go straight to writing up.
+- If it stopped partway (laptop slept, etc.) → each step writes its outputs only at the very
+  end, so there are **no corrupt partial files**. Just re-run whichever steps are missing:
+
+```bash
+export PATH="/opt/homebrew/bin:$PATH"
+N_SHUFFLE=500 NPERM_NULL=10000 N_CORE=7 Rscript scripts/09_bmd_vs_dmd.R      2>&1 | tee results/tables/09_log.txt
+N_REP=100     NPERM=10000      N_CORE=7 Rscript scripts/10b_detection_limit.R 2>&1 | tee results/tables/10b_log.txt
+N_SHUFFLE=500 NPERM_NULL=10000 N_CORE=7 Rscript scripts/08_shuffle_baseline.R 2>&1 | tee results/tables/08_shuffle_log.txt
+```
+
+**To stop it instead:** `pkill -f "Rscript scripts/"`
+
+### Still owed to Aziz (not yet done)
+
+1. The full Notion page refresh with steps 8–14 results (`docs/NOTION_session_01.md` currently
+   covers only steps 0–7, 10a, 12).
+2. **Update `CLAUDE.md`** with the decisions taken, the environment realities and the
+   performance lessons.
+3. **Push to GitHub.** Push access is verified (dry run clean). 3 commits are currently unpushed:
+   `git push origin main`.
+
+### What session 2 settled
+
+| Step | Result |
+|---|---|
+| **11** — 3′UTR-matched null | Survives at **6.5 SD** (p = 0.000999, the 1/1001 floor). **But a UTR-matched random set already scores NES ≈ 1.6**, so ~72% of miR-29's apparent 2.22 is UTR-length bias. **Never quote NES against a zero baseline.** All 25 top families survived. |
+| **13** — leave-one-out | miR-29 significant in **17/17** runs; **rank 1 of 128 in every BMD-vs-DMD run**. Closes the step-2 QC question (GSM2934803 and GSM2934813 are harmless) and the GSM2934804 disputed-severity item. |
+| **14** — DMD cut to n = 11 | **Negative result.** 53% of DMD-at-11 draws fall at or below BMD's miR-29 NES, so **measured against controls, BMD is NOT detectably weaker than DMD** at matched n. NES is a rank measure and saturates. The "milder" claim may rest only on the **direct** contrast and the raw fold-changes (COL1A1 +2.52 BMD vs +4.06 DMD). |
+
+### Hardware ceiling (don't try to tune past it)
+
+This Mac has **8 GB of RAM**. Measured parallel efficiency is **~65%** (4.5 effective cores of
+7) for these jobs — memory bandwidth, not a bug. Earlier readings suggesting 20% efficiency
+were lifetime averages distorted by slow starts; a 60-second delta is the honest measure:
+
+```bash
+PIDS=$(pgrep -f "08_shuffle_baseline" | tr '\n' ',' | sed 's/,$//')
+cpu() { ps -o time= -p $PIDS | tr -d ' ' | awk -F: '{s+=$1*60+$2} END {print s}'; }
+A=$(cpu); sleep 60; B=$(cpu); echo "effective cores: $(echo "($B-$A)/60" | bc -l)"
+```
+
+---
 
 **Session:** Sun 2026-11-01 evening → Mon 2026-11-02 early hours.
 **Schedule position (CLAUDE.md §7):** Sunday night was meant to be steps 0–2. We finished
