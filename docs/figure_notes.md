@@ -124,6 +124,26 @@ This is the central picture of the smoke test. Read it slowly.
   crosses at 50%, then with 11 BMD samples we can only reliably find footprints at least half
   the size of DMD's miR-29 footprint — and a null result for a smaller footprint means
   "too small to see here", not "absent".
+- **⚠ What it actually shows (run 3 Nov):** a flat line at 100%, including x = 0. Every
+  unplanted set was "caught", so this rule can't tell planted from unplanted. Use the 10b2
+  figure below instead; keep this one only to show the failure.
+
+## `results/figures/10b2_detection_curve_calibrated.png` — the detection limit, two catch rules
+
+- **x:** as above, the planted footprint as a % of the DMD miR-29 footprint (+0.2686 log2).
+  **y:** share of 100 simulations caught. **Grey** = spec rule (NES > 0, padj < 0.05).
+  **Blue** = calibrated rule (NES above 1.812, the 95th percentile of the 100 unplanted runs).
+- **Worked example:** at x = 10 we add 0.1 × 0.2686 = +0.027 log2 (≈ 1.9%) to 1,158 genes in
+  the 11 BMD samples. Median NES rises from 1.67 to 1.87. 73 of 100 runs beat 1.812, so the blue
+  point is at 0.73. The grey point is at 1.00, but grey was also 1.00 at x = 0, so it means
+  nothing.
+- **x = 0:** blue sits at 0.05 **by construction**, because the bar was set on those same
+  runs. Grey sits at 1.00: that is the failure.
+- **Which pattern means what:** blue crosses the red 80% line between x = 10 and x = 25 (≈ 14%
+  by interpolation). That is a **best case**: the same shift in every patient, on genes that
+  don't move together. BMD's real miR-29 footprint is ≈ 35% on this scale, so it would be
+  caught here, yet it fails the patient-label shuffle (p = 0.084). The gap between those two
+  facts is the finding.
 
 ## `results/figures/12_fibroblast_score.png` — how much fibroblast is in each biopsy
 

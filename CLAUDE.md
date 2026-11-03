@@ -2,9 +2,16 @@
 
 > ## ⚠ STATUS BLOCK — updated 3 Nov 2026. Read before anything else.
 >
-> **Steps 0–9, 10a, 11, 12, 13, 14 are COMPLETE.** Only **step 10b** is outstanding
-> (handed to Hamza — `docs/HANDOFF_hamza_step10b.md`). **Step 15 is BLOCKED** (Reschke
-> Table 1 unavailable). Computation freezes **Friday 6 Nov**.
+> **Steps 0–14 are COMPLETE** (10b ran 3 Nov on a 16-core Linux box, see below). **Step 15 is
+> BLOCKED** (Reschke Table 1 unavailable). Computation freezes **Friday 6 Nov**.
+>
+> **Step 10b: the spec's catch rule failed (false alarm 1.00 at f = 0).** Any UTR-matched random
+> set scores NES ≈ 1.68 and padj ≤ 2.1e−06. Calibrated against the unplanted runs
+> (`10b2_calibrated_catch.R`), 80% detection comes at ≈ 14% of the DMD footprint, but that is a
+> best case. BMD's real miR-29 footprint (≈ 35% on that scale) would pass it, yet fails the
+> patient shuffle (p = 0.084). **The binding limit is patient-to-patient variability, which 10b
+> can't simulate.** Which catch rule to headline is Aziz's call. ❌ Don't write "we detect
+> footprints down to 14%".
 >
 > ### The headline changed. The project is a NULL RESULT.
 >

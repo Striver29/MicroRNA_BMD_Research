@@ -1,5 +1,10 @@
 # Step 10b — detection limit. Handoff to Hamza
 
+> **✅ DONE, 3 Nov 2026. Do not rerun.** Ran in full (6 × 100, NPERM 10000) on a 16-core
+> Linux box in 76.2 min, with package versions identical to the Mac runs. All five deliverables
+> in §4 are in the repo. **The f = 0 false-alarm check failed (1.00)**, so a calibrated
+> re-scoring was added (`scripts/10b2_calibrated_catch.R`). See `docs/results_log.md`, step 10b.
+
 **What's needed:** one R script run to completion, and four output files sent back.
 **Why it moved to you:** it needs ~15.5 CPU-hours. Aziz's machine is a fanless MacBook Air M1
 (4 real performance cores, 8 GB RAM) and it kept sleeping; after 10 hours it was 64% done.
