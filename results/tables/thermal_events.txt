@@ -1,0 +1,1 @@
+02:14 thermal: 31.4C batt / 41.2C virt / cpu_limit 100% / 1 R procs -> OK

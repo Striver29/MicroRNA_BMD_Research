@@ -57,6 +57,10 @@ res[, shuffle_q := p.adjust(shuffle_p, "BH")]
 res[, absNES := abs(NES_BMDvsDMD)]; setorder(res, shuffle_p, -absNES)
 dir.create("results/tables", recursive = TRUE, showWarnings = FALSE)
 fwrite(res, "results/tables/09_bmd_vs_dmd.tsv", sep = "\t")
+# save the expensive objects NOW. The classification block below depends on step 8's output,
+# and if that file is missing we must not lose 2 hours of shuffling to a failed fread().
+saveRDS(list(res = res, nullm = nullm), "results/rds/bmd_vs_dmd.rds")
+cat("Wrote results/rds/bmd_vs_dmd.rds (nullm kept for the figure)\n")
 
 cat("\n=============== DIRECT BMD vs DMD ===============\n")
 cat("Reading the sign: NES < 0 means the family's targets are LOWER in BMD than in DMD,\n")
@@ -70,8 +74,12 @@ cat("families passing BOTH                  :", res[fgsea_padj < 0.05 & shuffle_
 cat("\n== miR-29 ==\n"); print(res[family_id == "miR-29-3p"])
 
 ## ---- shared / BMD-only / DMD-only, from HERE (CLAUDE.md step 9) -----------
+have8 <- file.exists("results/tables/08_family_shuffle_p.tsv")
+if (!have8) cat("\nNOTE: results/tables/08_family_shuffle_p.tsv not found (step 8 has not run).\n",
+                "Skipping the shared/BMD-only/DMD-only classification; rerun this script,\n",
+                "or scripts/09b_classify.R, once step 8 has finished.\n", sep = "")
+if (have8) {
 w <- fread("results/tables/07_fgsea_wide.tsv")
-sh <- fread("results/tables/08_family_shuffle_p.tsv", showProgress = FALSE)
 cls <- merge(w[, .(family_id, NES_BMDvsCtrl, padj_BMDvsCtrl, NES_DMDvsCtrl, padj_DMDvsCtrl)],
              res[, .(family_id, NES_BMDvsDMD, diff_p = shuffle_p, diff_q = shuffle_q)], by = "family_id")
 cls[, sig_BMD := padj_BMDvsCtrl < 0.05]
@@ -91,6 +99,7 @@ print(cls[differs == TRUE][order(diff_q), .(family_id, NES_BMD = round(NES_BMDvs
           diff_q = signif(diff_q,3), class)])
 
 saveRDS(list(res = res, nullm = nullm, cls = cls), "results/rds/bmd_vs_dmd.rds")
+}  # end if(have8)
 
 ## ---- figure: null NES vs real NES for miR-29 ------------------------------
 dir.create("results/figures", recursive = TRUE, showWarnings = FALSE)
