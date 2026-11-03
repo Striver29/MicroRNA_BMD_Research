@@ -256,11 +256,72 @@ DMD's" on the basis of the vs-control scores. Write:
 > disease; but the enrichment strength measured against healthy controls is indistinguishable
 > between the two groups at matched sample size.
 
+## Step 10b — detection limit (`scripts/10b_detection_limit.R` + `scripts/10b2_calibrated_catch.R`) — 76.2 min on 16 cores
+
+Outputs: `results/tables/10b_detection_curve.tsv`, `10b_detection_runs.tsv` (all 600 runs),
+`10b_log.txt`; `10b2_detection_curve_calibrated.tsv`, `10b2_ruler_utr_share.tsv`, `10b2_log.txt`;
+figures `10b_detection_curve.png`, `10b2_detection_curve_calibrated.png`.
+
+**⚠ The spec's catch rule failed its own sanity check. The false-alarm rate is 1.00, not ≤ 0.05.**
+
+| | Value |
+|---|---|
+| Ruler (DMD miR-29 footprint) | **+0.2686 log2** ≈ 20.5% linear — matches step 6 |
+| Planted set size | 1,158 genes, copying miR-29's 3′UTR-decile profile |
+| Unplanted (f = 0) NES, 100 runs | mean **1.679**, SD 0.087, range 1.455–1.867 — matches step 11's UTR-matched null (1.669) |
+| Spec rule at f = 0 | **100 / 100 caught**; even the *least* significant unplanted set had padj **2.1e−06** |
+| Calibrated bar (95th pct of unplanted NES) | **1.812** |
+
+| f (% of DMD footprint) | planted log2 | median NES | z vs unplanted | catch, spec rule | **catch, calibrated** |
+|---|---|---|---|---|---|
+| 0 | 0.000 | 1.67 | 0.00 | 1.00 | **0.05** (by construction) |
+| 10 | 0.027 | 1.87 | 2.28 | 1.00 | **0.73** |
+| 25 | 0.067 | 2.17 | 5.59 | 1.00 | **1.00** |
+| 50 | 0.134 | 2.59 | 10.52 | 1.00 | 1.00 |
+| 75 | 0.201 | 2.94 | 14.63 | 1.00 | 1.00 |
+| 100 | 0.269 | 3.23 | 17.81 | 1.00 | 1.00 |
+
+- **Spec rule:** the curve is flat at 100%, so it carries no information. The script's own
+  printout "80% detection reached at f = 0%" is an artefact of this. **Do not quote it.**
+- **Calibrated rule:** 80% is crossed between f = 10% and 25%, at **≈ 14% (+0.037 log2)** by
+  straight-line interpolation. The grid is coarse there.
+
+**How much of the ruler is just 3′UTR length** (`10b2_ruler_utr_share.tsv`, 1,000 UTR-matched draws):
+
+| Contrast | miR-29 gap (targets − others) | UTR-matched random set gap | share explained by UTR length |
+|---|---|---|---|
+| DMD − control | +0.2686 (the ruler) | +0.1124 | **42%** |
+| BMD − control | +0.1923 (= 72% of the ruler) | +0.0973 | **51%** |
+
+So BMD's miR-29-specific excess is 0.1923 − 0.0973 = **+0.095 log2 ≈ 35% of the ruler**. On the
+planting scale that sits at f ≈ 35%, and BMD's real miR-29 NES (2.169) does match the planted
+median at f = 25–35% (2.17 at f = 25%). Cross-check: planted z at f = 25% is 5.59; step 11's
+UTR-matched z for real BMD miR-29 was 5.39.
+
+**How to read this (the important part).**
+1. Even under the best case (the same shift in every patient, uncorrelated genes,
+   gene-sampling null), 10b2 says BMD's real miR-29 footprint (f ≈ 35%) is **well above** the
+   detectable size (f ≈ 14%). It would be caught 100% of the time.
+2. Yet the honest patient-label shuffle (step 8) gives miR-29 BMD-vs-control **p = 0.084**.
+3. So the binding limit at n = 11 is **not** the size of the gene-level signal. It is
+   **patient-to-patient variability**, which a constant plant on random genes doesn't
+   simulate. **10b as specified can't measure the limit that matters for our null result.**
+   The 10b2 curve is a best-case floor: the real detection limit is at least this large,
+   probably much larger.
+4. The spec rule's 100% false-alarm rate is a third, concrete example of the fgsea
+   overconfidence finding. Any random set of 1,158 long-UTR genes gets padj ≤ 2.1e−06.
+
+**Do NOT write:** "our method detects footprints down to 14% of DMD's at n = 11." Write
+instead: "Under idealised planting, a footprint ≈ 14% of the DMD miR-29 footprint was
+detectable against a 3′UTR-matched null. The observed BMD miR-29 footprint exceeds this, yet
+does not survive patient-label permutation (p = 0.084). At n = 11 the detection limit is set by
+between-patient variability, which planting simulations of this kind do not capture."
+
 ## Still running / not yet run
 
 | Step | Status |
 |---|---|
-| 9 — direct BMD vs DMD, 500 patient-label shuffles | **running** |
-| 10b — detection limit, 6 × 100 simulations | queued |
-| 8 — shuffled-label baseline, 500 shuffles | queued |
+| 8 — shuffled-label baseline, 500 shuffles | done (`08_family_shuffle_p.tsv`); headline numbers in the CLAUDE.md status block, full section not yet written here |
+| 9 — direct BMD vs DMD, 500 patient-label shuffles | done (`09_bmd_vs_dmd.tsv`); as above |
+| 10b — detection limit | **done** (above) |
 | 15 — pig overlap | **BLOCKED**: Reschke et al. 2026 Table 1 not obtained |

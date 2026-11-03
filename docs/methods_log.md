@@ -15,6 +15,7 @@ msigdbr 26.1.1 (MSigDB 2026.1.Hs), data.table 1.18.6.1, ggplot2 4.0.3, BiocParal
 | E2 | `GEOquery` **failed to build** and is not installed. | Build error. Not needed: see D1. |
 | E3 | `getGEOSuppFiles()` / `getGEO()` not used. GEO was reached through its two official web endpoints instead: metadata from `www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE109178&targ=gsm&form=text&view=brief`, CEL archive from `www.ncbi.nlm.nih.gov/geo/download/?acc=GSE109178&format=file`. | `ftp.ncbi.nlm.nih.gov` returns **HTTP 403** for file objects from this machine (directory listings work, file fetches do not). The web endpoints serve the same content. Parsed fields are exactly the ones `pData()` exposes. |
 | E4 | Only the 34 included CEL files were extracted from the 49-file archive. | Keeps the LGMD samples out of normalisation (CLAUDE.md §6 step 2) and saves disk. |
+| E5 | **Step 10b ran on a different machine**: Ubuntu 26.04, AMD EPYC 9R14, 16 physical cores (1 thread/core), 30 GB RAM, 3 Nov 2026. R 4.6.2 from CRAN's Ubuntu apt repo; packages as Posit Package Manager binaries, Bioconductor 3.23. **Every relevant version is identical to the Mac runs:** limma 3.68.5, fgsea 1.38.0, BiocParallel 1.46.0, data.table 1.18.6.1, ggplot2 4.0.3, scales 1.4.0. Only these six packages were installed; `00_setup.R` was not run. | The Mac (4 cores) needed ~15.5 CPU-h for 10b and kept sleeping. Inputs were the committed `gene_matrix.rds`, `family_sets.rds`, `limma.rds`, `utr_lengths.tsv`, so no CEL download or RMA was needed. |
 
 ## Decisions and defaults used (CLAUDE.md §10)
 
@@ -28,8 +29,8 @@ msigdbr 26.1.1 (MSigDB 2026.1.Hs), data.table 1.18.6.1, ggplot2 4.0.3, BiocParal
 | Smoke-test thresholds | GO = NES > 0 and padj < 0.05 | §6 step 6 |
 | Shuffle count | **500** (steps 8 and 9); 1,000 draws (step 11); 100 reps (steps 10b, 14) | §10 permits 500 "if too slow". Measured throughput after the parallelism fix is **20.4 s per shuffle** on 7 workers (21-shuffle parallel batch, not the script's serial extrapolation), so 1,000 shuffles = 5.7 h for step 8 alone and ~11 h for steps 8+9 together. Dropped to 500, giving a minimum empirical p of 1/501 = 0.002 — ample resolution. **Logged per §10.** |
 | fgsea permutations | `nPermSimple = 10000`, `eps = 0` for every reported run | At the default 1,000, 13 of 128 families returned `NA` NES (fgsea's own warning). Raised to 10,000 to remove the NAs. Inside step 11's null draws only, 1,000 is used, because there we need the NES distribution and not a precise p per draw. |
-| Catch criterion (step 10b) | NES > 0 and padj < 0.05 | §10 default |
-| Random seeds | 1 (steps 1–4), 42 (fgsea steps 6, 7, 10a, 12), 20261101 (step 8), 20261102 (step 9), 20261103 (step 11), 20261104 (step 10b) | every script sets its own |
+| Catch criterion (step 10b) | NES > 0 and padj < 0.05 | §10 default. **Failed its own check: false-alarm rate 1.00 at f = 0.** A second, calibrated rule (NES above the 95th percentile of the 100 unplanted runs) is reported alongside by `10b2_calibrated_catch.R`. Which one is the headline is **Aziz's call** — not switched. |
+| Random seeds | 1 (steps 1–4), 42 (fgsea steps 6, 7, 10a, 12), 20261101 (step 8), 20261102 (step 9), 20261103 (step 11), 20261104 (step 10b), 20261105 (step 10b2) | every script sets its own |
 
 ## Step-by-step parameters
 
@@ -109,7 +110,18 @@ genes after deletion are dropped.
 **Step 10b — detection limit.** Ruler = mean DMD−Ctrl log2FC of miR-29 targets minus that of
 non-targets. Planted sets copy miR-29's 3′UTR-decile profile. f ∈ {0, 10, 25, 50, 75, 100}%,
 100 repeats each, planted in the 11 BMD samples only, then BMD−Ctrl limma and fgsea rerun with
-the planted set tested among all 128 families.
+the planted set tested among all 128 families. Run with `N_REP=100 NPERM=10000 N_CORE=16`
+(full spec, no reduction).
+
+**Step 10b2 — calibrated catch rule.** Re-scores 10b's 600 saved runs; no limma or fgsea rerun.
+Catch = planted-set NES > 95th percentile of the NES of the 100 unplanted (f = 0) runs (bar =
+1.812). The f = 0 false-alarm rate is therefore 5% **by construction** (the bar is set on the
+same runs it is tested on), not an independent estimate. The 80% crossing is a straight-line
+interpolation between grid points 10% and 25%. Also computes how much of the ruler any
+UTR-matched random set already shows (1,000 draws per contrast, same decile profile as 10b).
+**What this rule still assumes, all in our favour:** the plant is the same shift in every BMD
+patient; planted genes are random, so they don't move together across patients; and the null
+varies the gene choice, not the patient labels. It is a best-case limit.
 
 **Step 11 — 3′UTR-matched null.** Genes binned into deciles of 3′UTR length; 1,000 random sets
 drawn per family copying its per-bin counts; fgsea on each. Real NES recomputed on the
@@ -166,6 +178,9 @@ efficiency loss from memory contention and has misled us once already.
 | step 8, 1,000 shuffles | 5.7 h → **rejected** |
 | step 8, 500 shuffles | **2.8 h → chosen** |
 | step 13, 17 leave-one-out runs x 2 contrasts | 7.3 min (measured) |
+| step 10b, serial per simulation (EPYC, `nproc = 1`) | 102.0 s |
+| step 10b, **32-run parallel batch on 16 workers** | 3.4 min = 2 waves × ~102 s → ~100% efficiency; CPU 100% user, 0% system |
+| step 10b, full 600 runs on 16 workers | projected 64 min, **measured 76.2 min** |
 
 ## Cuts (CLAUDE.md §5)
 
