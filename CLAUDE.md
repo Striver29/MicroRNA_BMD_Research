@@ -1,6 +1,76 @@
-# CLAUDE (1)
-
 # CLAUDE.md: BMD microRNA–fibrosis project (full research)
+
+> ## ⚠ STATUS BLOCK — updated 3 Nov 2026. Read before anything else.
+>
+> **Steps 0–9, 10a, 11, 12, 13, 14 are COMPLETE.** Only **step 10b** is outstanding
+> (handed to Hamza — `docs/HANDOFF_hamza_step10b.md`). **Step 15 is BLOCKED** (Reschke
+> Table 1 unavailable). Computation freezes **Friday 6 Nov**.
+>
+> ### The headline changed. The project is a NULL RESULT.
+>
+> The smoke test passed on fgsea's own terms (miR-29 DMD-vs-ctrl NES +2.22, padj 5.4e-35),
+> but **fgsea permutes genes, not people**. Under the patient-label shuffle that §5 and §10
+> demanded, everything dissolves:
+>
+> | Claim | fgsea said | Honest (patient-shuffle) |
+> |---|---|---|
+> | miR-29, DMD vs ctrl | padj 1.5e-34 | **p = 0.052** |
+> | miR-29, BMD vs ctrl | padj 1.4e-31 | **p = 0.084** |
+> | miR-29, BMD vs DMD | padj 4.7e-10 | **p = 0.239** |
+> | families differing BMD vs DMD | 7 of 128 | **0 of 128** |
+> | r between BMD and DMD footprints | 0.9123 | **p = 0.064** (null 95th pct = 0.933) |
+>
+> **fgsea is overconfident by up to 34 orders of magnitude on this data.** §10's warning was
+> correct and the magnitude is a publishable finding in itself.
+>
+> ### Do NOT write these sentences
+> - ❌ miR-29 is significantly altered in BMD or DMD
+> - ❌ BMD's footprint is a weaker copy of DMD's (step 14: 53% of DMD-at-n=11 draws fall at or
+>   below BMD; step 8: r p = 0.064)
+> - ❌ BMD and DMD differ in any microRNA family
+>
+> ### What survives
+> - The method recovers the right biology directionally: miR-29 targets up, collagen genes
+>   leading the edge, surviving ECM removal (96.7% of NES), fibroblast adjustment (79%), a
+>   3′UTR-matched null (6.5 SD), and 17/17 leave-one-out runs.
+> - miR-29 ranks **3rd of 128 even on the honest test** — the signature of *underpowered*,
+>   not *absent*.
+> - **The paper is now the §6-step-6 fallback:** *"Can target footprints recover known
+>   microRNA biology in dystrophic muscle? Detection limits at n = 11."* Step 10b carries it.
+>
+> ### Two findings worth publishing on their own
+> 1. **fgsea's gene-permutation p-values are catastrophically overconfident** on correlated
+>    target sets (above).
+> 2. **GSE38417 is a duplicate re-deposit of GSE109178** — identical raw intensities across
+>    all 1,354,896 probe cells (r = 1.000000, 0 differing). Merging it would have faked
+>    significance. **Run `scripts/check_duplicate_arrays.R` before merging ANY accession.**
+>
+> ### Closed decisions (do not reopen)
+> - **QC STOP (§6 step 2): keep all 34.** RLE/NUSE clean on every array; the spec's
+>   correlation metric was confounded by group size (28 diseased vs 6 healthy guarantees
+>   controls score lowest). Step 13 confirmed no sample matters.
+> - **GSM2934804 severity robustness item: CLOSED.** Dropping it moves miR-29 from +2.169 to
+>   +2.156. Immaterial.
+> - **Shuffle count: 500**, not 1,000 (§10's permitted fallback). Measured throughput was
+>   20.4 s/shuffle; 1,000 would have been 5.7 h for step 8 alone.
+> - **No dataset expansion.** GSE38417 duplicate; GSE13608 adds muscle-site and age confounds
+>   for ~18% precision; GSE291383 (6 BMD, no controls) is RNA-seq. **11 BMD is the binding
+>   constraint and no public data fixes it.**
+>
+> ### Engineering rules learned the hard way
+> - `fgsea` inside `bplapply` **must** take `nproc = 1`, else it grabs every core per worker
+>   (52% of CPU lost to context-switching; 98 min job projected to 6.8 h).
+> - `setorder(dt, -abs(x))` is **invalid** in data.table — crashed a step after 2 h of work.
+> - Scripts must `saveRDS` expensive objects **before** any optional block.
+> - Never run two heavy R jobs concurrently on this machine (8 GB, 4 real cores).
+> - Project runtimes from a **parallel** batch, never a serial timing loop.
+> - R lives at `/opt/homebrew/bin` — not on the default PATH.
+> - NCBI FTP returns 403 here; use GEO's web endpoints (already wired into script 01).
+>
+> **Plain-language write-up for Aziz: `docs/NOTION_session_01.md`.**
+
+---
+
 
 Read this whole file before doing anything in this repo. It is the single source of truth for the analysis. Hamza’s narrower brief lives in `docs/CLAUDE-hamza.md`.
 
