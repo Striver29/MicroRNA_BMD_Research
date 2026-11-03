@@ -1,3 +1,6 @@
 [22:51] START 11
 [22:54] END 11 exit=0
 [22:54] START 09
+[02:14] START 08 (500 shuffles, 4 workers)
+[05:46] END 08 exit=0
+[05:46] START 10b (4 workers)
