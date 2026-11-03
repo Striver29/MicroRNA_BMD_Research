@@ -1,7 +1,11 @@
 data/raw/
-data/processed/
+data/processed/*
 *.CEL
 *.CEL.gz
 *.tar
 .DS_Store
 .Rhistory
+
+# exception: the 5 MB gene matrix is shared so collaborators can run downstream steps
+# without re-downloading 217 MB of CEL files
+!data/processed/gene_matrix.rds

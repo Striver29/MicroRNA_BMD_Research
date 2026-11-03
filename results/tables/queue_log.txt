@@ -4,3 +4,6 @@
 [02:14] START 08 (500 shuffles, 4 workers)
 [05:46] END 08 exit=0
 [05:46] START 10b (4 workers)
+./scripts/run_rest.sh: line 12: 42836 Terminated: 15          N_REP=100 NPERM=10000 N_CORE=4 Rscript scripts/10b_detection_limit.R > results/tables/10b_log.txt 2>&1
+[15:34] END 10b exit=0
+[15:34] START 09 classification (cheap, needs step 8 output)

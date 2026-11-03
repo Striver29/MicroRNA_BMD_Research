@@ -1,0 +1,4 @@
+patients only: 28  BMD: 11  DMD: 17 
+NOTE: the 6 controls are not used here at all, so a fluke in the controls cannot
+      create a BMD-DMD difference. This is the comparison that answers
+      'is BMD different from DMD?'.
