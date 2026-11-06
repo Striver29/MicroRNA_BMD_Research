@@ -96,9 +96,11 @@ miR-29-3p has 1,158 array-present targets.
 the top 25 families cross-referenced against the fibrosis sets.
 
 **Step 8 — shuffled-label baseline.** All 34 labels shuffled keeping 6/11/17, limma refit, fgsea
-rerun for both control contrasts, r and slope recorded. 1,000 shuffles, 7 cores, `nPermSimple`
-10,000. Timed first: 41.3 s per shuffle serial → ~98 min projected on 7 cores. Empirical
-p = (#shuffles ≥ real + 1) / (N + 1).
+rerun for both control contrasts, r and slope recorded. **500 shuffles actually run** (not the
+1,000 first planned — see the shuffle-count row above), 7 cores, `nPermSimple` 10,000. The
+script's serial timing loop projected ~98 min; the real parallel run took **206.7 min**, which is
+why CLAUDE.md now says to project runtimes from a parallel batch and never from a serial loop.
+Empirical p = (#shuffles ≥ real + 1) / (N + 1), so the floor here is 1/501 = 0.002.
 
 **Step 9 — direct BMD vs DMD.** BMD/DMD labels shuffled among the **28 patients only**, keeping
 11/17. The 6 controls are not used at all, so no control fluke can create a difference.
@@ -202,5 +204,5 @@ efficiency loss from memory contention and has misled us once already.
 | Serum microRNAs (SQ4) | CLAUDE.md §5 |
 | Hypergeometric overlap test | CLAUDE.md §5 — superseded by fgsea, which needs no cutoff |
 | GSE157668 | CLAUDE.md §5, unless a ready-made count table appears |
-| Step 15 (pig overlap) | **BLOCKED**, not cut: Reschke et al. 2026 Table 1 not obtained, and §4 forbids building `pig_mirnas.tsv` from any other source |
+| Step 15 (pig overlap) | **DROPPED 6 Nov 2026** at the computation freeze. Reschke et al. 2026 Table 1 was never obtained and §4 forbids building `pig_mirnas.tsv` from any other source. No pig comparison appears in the paper; it should be named in Limitations as an intended comparison that could not be sourced. |
 | The old preliminary GEO2R claim | Replaced by step 4's limma tables. Must not be cited (CLAUDE.md §6 step 4). |

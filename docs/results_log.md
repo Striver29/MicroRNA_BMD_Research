@@ -387,10 +387,17 @@ contrast can see that.
 **Required phrasing for the paper.** Do **not** write "BMD's miR-29 footprint is weaker than
 DMD's" on the basis of the vs-control scores. Write:
 
-> BMD shows the **same miR-29 footprint pattern** as DMD. The **direct** BMD-vs-DMD comparison
-> shows miR-29 targets are significantly **less elevated** in BMD, consistent with milder
-> disease; but the enrichment strength measured against healthy controls is indistinguishable
-> between the two groups at matched sample size.
+> BMD shows the **same miR-29 footprint pattern** as DMD, and the enrichment strength measured
+> against healthy controls is indistinguishable between the two groups at matched sample size.
+
+**⚠ CORRECTED 6 Nov 2026.** The sentence originally written here claimed the direct BMD-vs-DMD
+comparison showed miR-29 targets "significantly less elevated in BMD". **That is wrong and must
+not be used.** It rested on fgsea's padj (4.7e−10). Step 9's patient-label shuffle, which is the
+yardstick CLAUDE.md §10 requires, gives **p = 0.239** for that same contrast — not significant —
+and **0 of 128 families** differ between BMD and DMD. The individual *gene* magnitudes really do
+differ (COL1A1 +2.52 in BMD vs +4.06 in DMD, adj.P 4.6e−06 from limma, which permutes nothing and
+is a per-gene test), and that is safe to report as a gene-level observation. The *footprint*
+difference is not. Keep the two claims apart.
 
 ## Step 10b — detection limit (`scripts/10b_detection_limit.R` + `scripts/10b2_calibrated_catch.R`) — 76.2 min on 16 cores
 
