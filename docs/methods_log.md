@@ -123,6 +123,18 @@ UTR-matched random set already shows (1,000 draws per contrast, same decile prof
 patient; planted genes are random, so they don't move together across patients; and the null
 varies the gene choice, not the patient labels. It is a best-case limit.
 
+**Step 9b — shared / BMD-only / DMD-only classification** (`scripts/09b_classify.R`, 6 Nov 2026).
+The classification block at the end of `09_bmd_vs_dmd.R` requires `08_family_shuffle_p.tsv`.
+Step 9 ran 3 Nov 01:49; step 8 did not write that file until 05:46, so the block halted with a
+`fread()` error and no classification table was ever produced. `09b_classify.R` rebuilds it from
+the saved tables (`09_bmd_vs_dmd.tsv`, `07_fgsea_wide.tsv`, `08_family_shuffle_p.tsv`) with **no
+limma, fgsea or shuffle recomputation** — the classification logic is identical to the original
+block. Two classifications are emitted, not one: (a) the spec version, where "raised vs controls"
+means fgsea padj < 0.05; (b) an honest version using step 8's patient-shuffle p < 0.05, required
+by CLAUDE.md §10 ("report fgsea padj **and** the label-shuffle p"). The `differs` column is
+identical in both, because it comes from the direct BMD-vs-DMD comparison. Output:
+`results/tables/09_family_classification.tsv`.
+
 **Step 11 — 3′UTR-matched null.** Genes binned into deciles of 3′UTR length; 1,000 random sets
 drawn per family copying its per-bin counts; fgsea on each. Real NES recomputed on the
 UTR-restricted gene set so it is comparable to the nulls.

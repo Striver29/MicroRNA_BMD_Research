@@ -1,7 +1,7 @@
 # BMD microRNA–Fibrosis Project — Complete Analysis Write-up
 
-**Dataset:** GSE109178 · **Sessions:** 1–2 Nov 2026 · **Computation freeze:** Friday 6 Nov
-**Status:** All analyses complete except the detection-limit curve (step 10b, handed to Hamza).
+**Dataset:** GSE109178 · **Sessions:** 1–6 Nov 2026 · **Computation frozen:** Friday 6 Nov 2026
+**Status:** All analyses complete (steps 0–14). Step 15 (pig overlap) dropped — source table unobtainable.
 
 > **How to read this page.** It assumes no biology and no statistics. Every term is defined
 > where it first appears, and every statistical claim comes with a worked example using real

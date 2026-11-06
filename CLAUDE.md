@@ -1,9 +1,11 @@
 # CLAUDE.md: BMD microRNA–fibrosis project (full research)
 
-> ## ⚠ STATUS BLOCK — updated 3 Nov 2026. Read before anything else.
+> ## ⚠ STATUS BLOCK — updated 6 Nov 2026. Read before anything else.
 >
-> **Steps 0–14 are COMPLETE** (10b ran 3 Nov on a 16-core Linux box, see below). **Step 15 is
-> BLOCKED** (Reschke Table 1 unavailable). Computation freezes **Friday 6 Nov**.
+> **COMPUTATION IS FROZEN. Steps 0–14 are COMPLETE.** Step 15 is **DROPPED**, not pending
+> (Reschke Table 1 never obtained; CLAUDE.md §4 forbids building `pig_mirnas.tsv` any other
+> way). Step 9's classification block, which had silently died on 3 Nov, was completed 6 Nov
+> by `09b_classify.R` with no recomputation. **Nothing further is to be run. Writing only.**
 >
 > **Step 10b: the spec's catch rule failed (false alarm 1.00 at f = 0).** Any UTR-matched random
 > set scores NES ≈ 1.68 and padj ≤ 2.1e−06. Calibrated against the unplanted runs
@@ -25,6 +27,7 @@
 > | miR-29, BMD vs ctrl | padj 1.4e-31 | **p = 0.084** |
 > | miR-29, BMD vs DMD | padj 4.7e-10 | **p = 0.239** |
 > | families differing BMD vs DMD | 7 of 128 | **0 of 128** |
+> | families altered vs controls in BOTH groups | **101 of 128** | **1 of 128** (6.4 expected by chance) |
 > | r between BMD and DMD footprints | 0.9123 | **p = 0.064** (null 95th pct = 0.933) |
 >
 > **fgsea is overconfident by up to 34 orders of magnitude on this data.** §10's warning was
@@ -40,8 +43,9 @@
 > - The method recovers the right biology directionally: miR-29 targets up, collagen genes
 >   leading the edge, surviving ECM removal (96.7% of NES), fibroblast adjustment (79%), a
 >   3′UTR-matched null (6.5 SD), and 17/17 leave-one-out runs.
-> - miR-29 ranks **3rd of 128 even on the honest test** — the signature of *underpowered*,
->   not *absent*.
+> - miR-29 ranks **3rd of 128 on the honest test — in DMD vs control only** (p = 0.052). That is
+>   the signature of *underpowered*, not *absent*. ⚠ **In BMD vs control it ranks 45th**
+>   (p = 0.084). Never let "3rd of 128" stand next to a BMD sentence unqualified.
 > - **The paper is now the §6-step-6 fallback:** *"Can target footprints recover known
 >   microRNA biology in dystrophic muscle? Detection limits at n = 11."* Step 10b carries it.
 >

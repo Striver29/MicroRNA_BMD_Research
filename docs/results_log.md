@@ -136,6 +136,142 @@ highest 4.1%, most are 1–3%). That is a specificity signal in the content, ind
 
 **Do not quote these two against 0.** They must be read against the step-8 shuffled baseline.
 
+## Step 8 — shuffled-label baseline (`scripts/08_shuffle_baseline.R`) — 206.7 min, 500 shuffles
+
+Outputs: `results/tables/08_family_shuffle_p.tsv`, `08_shuffle_log.txt`;
+figures `08_shuffle_r.png`, `08_shuffle_slope.png`. Seed 20261101.
+
+**What this step is for.** Step 7 found that the BMD and DMD footprints agree at r = 0.9123.
+Read against zero that looks like proof that BMD is a weaker copy of DMD. It is not, because
+both comparisons are measured against the **same 6 controls** (CLAUDE.md §5, the shared-control
+trap): any quirk in those 6 pushes BMD and DMD in the same direction at once and manufactures
+agreement out of nothing. The only honest yardstick is what r looks like when the labels are
+meaningless. So: shuffle all 34 patient labels keeping 6/11/17, rerun limma for both contrasts
+and fgsea over all 128 families, record r and slope, 500 times.
+
+### The headline: the real value is inside the noise
+
+| | real | null mean | null median | null SD | null 95th pct | null max | **empirical p** |
+|---|---|---|---|---|---|---|---|
+| Pearson r (BMD NES vs DMD NES) | **0.9123** | 0.510 | 0.553 | 0.345 | **0.933** | 0.984 | **0.0639** |
+| slope (BMD NES on DMD NES) | **0.9769** | 0.516 | 0.555 | 0.404 | 1.094 | 1.311 | **0.1138** |
+
+Read the r row slowly. Shuffled, meaningless labels produce r ≥ 0.933 on 5% of runs and reached
+0.984 at worst. Our real 0.9123 does not even clear the 95th percentile of pure noise. The
+§5 prediction (r ≈ 0.7 with slope < 1 from noise alone) was qualitatively right and if anything
+understated it.
+
+**Therefore: `r = 0.91` is not evidence of anything.** Neither is the slope near 1. Both are
+what this study design produces when nothing is going on.
+
+### Per-family patient-shuffle p-values (the free by-product, CLAUDE.md §10)
+
+Each shuffle also gives every family a null NES distribution, so every family gets a
+**patient-shuffle p** to sit beside its fgsea padj.
+
+| | fgsea padj | **patient-shuffle p** |
+|---|---|---|
+| miR-29, DMD − control | 1.46e−34 | **0.0522** |
+| miR-29, BMD − control | 1.44e−31 | **0.0843** |
+
+That is the **overconfidence finding**, stated as a single pair of numbers: on the same data,
+the same gene set and the same contrast, fgsea's p is roughly **32 orders of magnitude**
+smaller than the p you get by shuffling people instead of genes.
+
+Counts across all 128 families at p < 0.05 — **6.4 are expected by chance alone**:
+
+| Contrast | families with shuffle p < 0.05 | vs 6.4 expected |
+|---|---|---|
+| DMD − control | **1** of 128 (miR-196-5p) | *below* chance |
+| BMD − control | **10** of 128 | barely above chance |
+
+The 10 in BMD are miR-409-3p (0.018), miR-376-3p (0.026), miR-382-5p (0.032), miR-196-5p
+(0.034), miR-136-5p (0.034), miR-193-3p (0.038), miR-186-5p (0.042), miR-425-5p (0.042),
+miR-145-5p (0.046), miR-423-5p (0.050). **None survives any correction for 128 tests**, and 10
+out of 128 is not meaningfully more than the 6.4 you would get from noise. Do not present this
+list as a finding. *(Several of the first five are reported in the literature as members of the
+14q32 / DLK1-DIO3 imprinted cluster — `[UNVERIFIED]`, not checked against a source, and in any
+case the counts are at chance level.)*
+
+### Where miR-29 ranks on the honest test
+
+| | rank by NES | rank by patient-shuffle p |
+|---|---|---|
+| DMD − control | **2nd** of 128 | **3rd** of 128 |
+| BMD − control | 11th of 128 | **45th** of 128 |
+
+**Precision note for the write-up:** the CLAUDE.md status-block line "miR-29 ranks 3rd of 128
+even on the honest test" is true **for DMD vs control only**. In BMD vs control it ranks 45th.
+Do not let the 3rd-of-128 claim stand unqualified next to a BMD sentence. The DMD ranking is
+the one that supports "underpowered rather than absent"; BMD's does not support it.
+
+---
+
+## Step 9 — direct BMD vs DMD (`scripts/09_bmd_vs_dmd.R` + `scripts/09b_classify.R`) — 500 shuffles
+
+Outputs: `results/tables/09_bmd_vs_dmd.tsv`, `09_family_classification.tsv`, `09_log.txt`,
+`09_classify_log.txt`; figure `09_mir29_bmd_vs_dmd_shuffle.png`. Seed 20261102.
+
+**Why this step is the one that actually answers the question.** Steps 7 and 8 both measure BMD
+and DMD against the same 6 controls. This step throws the controls away entirely and compares
+the **28 patients to each other**, shuffling the BMD/DMD label among them keeping 11/17. With no
+controls in the test, a fluke in the controls cannot possibly create a BMD–DMD difference. This
+is where "is BMD different from DMD?" is answered.
+
+### The answer is no, for every family
+
+| | value |
+|---|---|
+| families with fgsea padj < 0.05 | **7** of 128 |
+| families with patient-shuffle p < 0.05 | **0** |
+| families passing **both** | **0** |
+
+miR-29 specifically:
+
+| | value |
+|---|---|
+| NES, BMD − DMD | **−1.590** |
+| fgsea padj | 4.70e−10 |
+| **patient-shuffle p** | **0.2394** |
+| shuffle q (BH over 128) | 0.951 |
+| null NES mean / SD | 0.053 / 1.386 (from 496 usable shuffles; 4 returned non-finite NES) |
+
+Note the direction: NES < 0 in BMD − DMD means miR-29 targets sit lower in BMD, i.e. the brake
+is predicted **more active in BMD than in DMD** — the milder-disease direction you would hope
+for. **It is not significant (p = 0.24).** Do not report the direction as a result.
+
+Here fgsea's overconfidence is a factor of ~2.3e8 on a single family (4.7e−10 vs 0.24).
+
+### Shared / BMD-only / DMD-only (`09b_classify.R`)
+
+**Run note.** The original `09_bmd_vs_dmd.R` run on 3 Nov 01:49 halted at this final block with a
+`fread()` error, because it needed `08_family_shuffle_p.tsv` and step 8 did not finish until
+05:46. The 500 shuffles themselves completed and were saved, so `09b_classify.R` (6 Nov) rebuilds
+the classification from the saved tables with **no recomputation**. Logged per CLAUDE.md §9.
+
+Because **0 of 128 families differ** between BMD and DMD, no family can be BMD-only or DMD-only
+by construction. Every family falls into "shared" or "neither", and which one depends entirely
+on the yardstick used for "raised vs controls":
+
+| "raised vs controls" judged by | shared | neither | BMD-only | DMD-only |
+|---|---|---|---|---|
+| (a) fgsea padj < 0.05 | **101** | 27 | 0 | 0 |
+| (b) patient-shuffle p < 0.05 | **1** (miR-196-5p) | 127 | 0 | 0 |
+
+**This single table is the cleanest statement of the whole project.** Asked "how many microRNA
+families are altered in dystrophic muscle?", fgsea answers **101 of 128**; the patient shuffle,
+on identical data, answers **1** — and that 1 is fewer than the 6.4 expected by chance.
+
+miR-29 is classified **"shared"** under (a) and **"neither"** under (b).
+
+### The sentence to write
+
+> Directly comparing BMD and DMD patients, with healthy controls excluded so that control-sample
+> variation cannot contribute, no microRNA family's target footprint differed between the two
+> groups under patient-label permutation (0 of 128 families, all q > 0.95; miR-29 p = 0.24).
+> We therefore cannot distinguish BMD's predicted microRNA activity from DMD's at these sample
+> sizes, and we report no shared, BMD-specific or DMD-specific families.
+
 ## Step 10a — ECM removed (`scripts/10a_ecm_removed.R` → `results/tables/10a_ecm_removed.tsv`)
 
 Dropping all 275 matrisome-core genes from both the ranked list and the family sets:
@@ -317,11 +453,20 @@ detectable against a 3′UTR-matched null. The observed BMD miR-29 footprint exc
 does not survive patient-label permutation (p = 0.084). At n = 11 the detection limit is set by
 between-patient variability, which planting simulations of this kind do not capture."
 
-## Still running / not yet run
+## Status of every step (final, computation frozen Fri 6 Nov 2026)
 
 | Step | Status |
 |---|---|
-| 8 — shuffled-label baseline, 500 shuffles | done (`08_family_shuffle_p.tsv`); headline numbers in the CLAUDE.md status block, full section not yet written here |
-| 9 — direct BMD vs DMD, 500 patient-label shuffles | done (`09_bmd_vs_dmd.tsv`); as above |
-| 10b — detection limit | **done** (above) |
-| 15 — pig overlap | **BLOCKED**: Reschke et al. 2026 Table 1 not obtained |
+| 0–7 | done; sections above |
+| 8 — shuffled-label baseline, 500 shuffles | **done**, written up above |
+| 9 — direct BMD vs DMD, 500 shuffles + classification | **done**, written up above; classification completed 6 Nov by `09b_classify.R` |
+| 10a — ECM removed | done |
+| 10b — detection limit (+ 10b2 calibration) | **done** |
+| 11 — 3′UTR-matched null | done |
+| 12 — fibroblast covariate | done |
+| 13 — leave-one-out | done |
+| 14 — DMD subsampled to n = 11 | done |
+| 15 — pig overlap | **DROPPED, not blocked-pending.** Reschke et al. 2026 Table 1 could not be obtained, so `pig_mirnas.tsv` was never built (CLAUDE.md §4 forbids building it from anything else). No pig comparison appears in the paper. |
+
+**Nothing further is to be computed.** Per CLAUDE.md §7 the results freeze was Friday 6 Nov.
+Remaining work is writing only.

@@ -1,4 +1,44 @@
-patients only: 28  BMD: 11  DMD: 17 
-NOTE: the 6 controls are not used here at all, so a fluke in the controls cannot
-      create a BMD-DMD difference. This is the comparison that answers
-      'is BMD different from DMD?'.
+families classified: 128 
+
+== (a) SPEC classification: 'raised vs controls' = fgsea padj < 0.05 ==
+   class_fgsea     N
+        <char> <int>
+1:      shared   101
+2:     neither    27
+
+== (b) HONEST classification: 'raised vs controls' = step 8 patient-shuffle p < 0.05 ==
+   class_shuffle     N
+          <char> <int>
+1:       neither   127
+2:        shared     1
+
+== families the DIRECT comparison says differ between BMD and DMD (q < 0.05) ==
+NONE. 0 of 128 families. So no family can be BMD-only or DMD-only:
+ every family is either 'shared' or 'neither'. This is the null result.
+
+== the families called 'shared' under each rule ==
+(a) fgsea:   101 families
+(b) shuffle: 1 families -> miR-196-5p 
+
+== miR-29 ==
+                    [,1]          
+family_id           "miR-29-3p"   
+size                "1158"        
+NES_BMDvsCtrl       "2.168925"    
+NES_DMDvsCtrl       "2.223685"    
+NES_BMDvsDMD        "-1.590093"   
+padj_BMDvsCtrl      "1.438621e-31"
+padj_DMDvsCtrl      "1.456926e-34"
+shuffle_p_BMDvsCtrl "0.08433735"  
+shuffle_p_DMDvsCtrl "0.05220884"  
+diff_p              "0.2394366"   
+diff_q              "0.9509869"   
+differs             "FALSE"       
+class_fgsea         "shared"      
+class_shuffle       "neither"     
+sig_BMD_fgsea       "TRUE"        
+sig_DMD_fgsea       "TRUE"        
+sig_BMD_shuffle     "FALSE"       
+sig_DMD_shuffle     "FALSE"       
+
+Wrote results/tables/09_family_classification.tsv
