@@ -69,11 +69,13 @@ All checked against the frozen tables; full list in `scripts/check_writeup_numbe
 **Confirmed only from logs or saved objects, not recomputable here** (no R or CEL files in this
 container):
 - eBayes **prior df 4.23**: the only plausible scalar in `results/rds/limma.rds` is 4.226.
+- **Atlas muscle filter, re-run from a fresh download:** the "miRNA avg std human" parquet plus
+  the unchanged `build_inputs_muscle.py` gives **353 of 2,656** microRNAs, and 2,064/2,064
+  families identical to `inputs/auto/mirna_families.tsv` (253 muscle-expressed).
 - Runtimes 206.7 / 76.2 / 7.3 / 31.1 min: the step logs.
 - **Logged only, with no saved output to re-check:**
   - 11,043 genes with more than one probeset
   - 13 of 128 NA NES at fgsea's default permutation count
-  - 353 of 2,656 atlas microRNAs pass the muscle threshold
   - the GSE38417 bit-identity (1,354,896 cells, r = 1). The matching internal ID
     `MIDO-CTRL_Pos-1UP` *was* confirmed on GEO.
   - Bioconductor 3.23: not named in `sessionInfo.txt`; all listed package versions match.
