@@ -699,7 +699,7 @@ must. `results/tables/04_sanity_fibrosis_genes.tsv`, in log2 fold change:
 | COL1A2 | +2.043 | 1.4e−07 | +2.940 | 7.5e−12 | −0.897 | 4.2e−04 |
 | COL3A1 | +2.311 | 8.3e−09 | +3.260 | 4.6e−13 | −0.949 | 1.3e−04 |
 | COL5A1 | +1.919 | 1.4e−06 | +2.828 | 7.5e−11 | −0.910 | 8.5e−04 |
-| LOX | +2.607 | 2.4e−07 | +3.573 | 3.7e−11 | −0.966 | 3.1e−03 |
+| LOX | +2.607 | 2.3e−07 | +3.573 | 3.7e−11 | −0.966 | 3.1e−03 |
 
 **Three things to read off this table:**
 
@@ -864,8 +864,8 @@ The genes in miR-29's leading edge for DMD-versus-control that are also in the f
 of genes that happen to carry a seed match — it is being driven by precisely the scar programme
 miR-29 is published to control.
 
-**miR-29's leading edge is 6.5% fibrosis-set genes — the highest of any top family** (next
-highest 4.1%; most are 1–3%).
+**miR-29's leading edge is 6.5% fibrosis-set genes — the highest of the 25 top families** (next
+highest 5.3%, miR-381-3p; most are 1–3%).
 
 > **This is specificity evidence of a completely different kind, and you should lean on it in the
 > Discussion.** It is about *content*, not p-values. It cannot be inflated by permutation
@@ -1178,9 +1178,9 @@ tissue, obtained independently of any microRNA analysis.
 | BMD − DMD | −1.590 → −1.300 | 7.1e−03 |
 
 > **Second specificity signal.** Adjusting for fibroblast content **halves** the number of
-> significant families (103 → 51), but miR-29 retains **79%** of its NES where other top families
-> retain only ~55–60% — and afterwards it leads the field by **eleven orders of magnitude**
-> (1.7e−16 versus 3.1e−05 for the next family). Whatever miR-29 is picking up, it is
+> significant families (103 → 51), but miR-29 retains **79%** of its NES where the other top-10
+> families retain 48–74% (median 64%) — and afterwards it is the most significant family
+> (1.7e−16 versus 5.5e−08 for the next, miR-144-3p). Whatever miR-29 is picking up, it is
 > substantially *not* explained by how much scar tissue is in the biopsy.
 >
 > **Required caveat (and do include it):** scar load genuinely differs by group, so this

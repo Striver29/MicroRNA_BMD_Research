@@ -55,10 +55,11 @@ microRNAs. With 11 BMD patients every result is hypothesis-generating; say so.
 > we inferred microRNA activity from the collective behaviour of predicted target genes across
 > 128 muscle-expressed seed families. The approach recovered the expected biology directionally:
 > miR-29 targets were coordinately elevated in DMD muscle (NES +2.22, 2nd of 128 families), its
-> leading edge was the most fibrosis-dense of any family (6.5%), and the signal persisted after
-> removing all 275 core-matrisome genes (96.7% retained), adjusting for fibroblast content (79%
-> retained), matching on 3'UTR length (6.5 SD above a matched null) and leave-one-out resampling
-> (17/17 runs). All of these, however, assess significance by permuting genes. When significance
+> leading edge was the most fibrosis-dense of the 25 top-ranked families (6.5%), and the signal
+> persisted after removing all 275 core-matrisome genes (96.7% retained), adjusting for fibroblast
+> content (79% retained) and matching on 3'UTR length (6.5 SD above a matched null); in BMD it was
+> stable across leave-one-out resampling (17/17 runs). All of these, however, assess significance
+> by permuting genes. When significance
 > was instead assessed by permuting **patient labels** — the only null that tests whether disease
 > status drives the footprint — no result survived: miR-29 reached p = 0.052 in DMD and p = 0.084
 > in BMD, no family differed between the two diseases (0 of 128, all q > 0.95), and the apparent
@@ -196,6 +197,10 @@ This subsection carries the paper. Define the two nulls side by side:
   the project rules permit 500 — log it as a deviation). Empirical p floor **1/501 = 0.002**.
 - **p = (k + 1) / (N + 1)**. Family-level tests are **two-sided on |NES|**; the r and slope tests
   are **one-sided**. State both — they differ, and a referee checking reproducibility will notice.
+- **N is per family:** shuffles where fgsea returned no finite NES for a family are dropped for
+  that family (`08_shuffle_baseline.R` line 88). Most families keep all 500 (106 of 128 in DMD vs
+  control, 110 in BMD vs control). **miR-29 keeps 497 in step 8** (p = 26/498 and 42/498) **and 496
+  in step 9.** Say this in one sentence.
 - Step 9 shuffles **BMD/DMD among the 28 patients only, preserving 11/17**, with controls excluded
   from the test entirely. [`08_shuffle_baseline.R`, `09_bmd_vs_dmd.R`, `09b_classify.R`]
 
@@ -231,8 +236,9 @@ This subsection carries the paper. Define the two nulls side by side:
   **26.1.1**, BiocParallel **1.46.0**, data.table **1.18.6.1**, ggplot2 **4.0.3**, plus oligo,
   pd.hg.u133.plus.2, hgu133plus2.db, AnnotationDbi. All compiled from source. Full `sessionInfo()`
   in `results/sessionInfo.txt`.
-- **Seeds:** 1 (steps 1–4); 42 (6, 7, 10a, 12); 20261101 (8); 20261102 (9); 20261103 (11);
-  20261104 (10b); 20261105 (10b2).
+- **Seeds:** 1 (steps 2–5 and `build_inputs.R`; step 1 has no randomness); 42 (6, 7, 10a, 12);
+  20261101 (8); 20261102 (9, 9b); 20261103 (11); 20261104 (10b); 20261105 (10b2, 13);
+  20261106 (14). *(Corrected 7 Nov against `set.seed()` in each script.)*
 - **Disclose the hardware change.** Step 10b ran on Ubuntu 26.04 / AMD EPYC 9R14 / 16 cores /
   30 GB rather than the 4-core Mac used for everything else. **Every relevant package version was
   identical.**
@@ -256,14 +262,18 @@ the floor, R5 is the technical note.
   Footprint size (the "ruler") **+0.269 log2 ≈ 20.5%** on the linear scale.
 - **Leading edge is a roll-call of collagens** — COL1A1, COL1A2, COL3A1, COL4A1/2/4, COL5A1/2/3,
   COL6A2/3/6, COL15A1, COL16A1, COL21A1, COL27A1, plus ELN, FBN1, LAMA2, LAMC1, NID1, SPARC.
-  **miR-29's leading edge is 6.5% fibrosis-set genes, the highest of any family** (next 4.1%;
-  most 1–3%). *Lean on this: it is a statement about content, not p-values, and no permutation
-  problem can touch it.*
+  **miR-29's leading edge is 6.5% fibrosis-set genes, the highest of the 25 top-ranked families**
+  (leading edges were extracted for these 25 only; next 5.3%, miR-381-3p; most 1–3%). *Lean on
+  this: it is a statement about content, not p-values, and no permutation problem can touch it.*
 - Survives the bias controls: ECM removal **+2.224 → +2.151 (96.7% retained)**; fibroblast
-  adjustment **+2.224 → +1.762 (79% retained**, vs ~55–60% for other top families, and afterwards
-  leading the field by eleven orders of magnitude: 1.7e−16 vs 3.1e−05 for the next family);
-  UTR-matched null **z = 6.56**, 0 of 1,000 matched sets reached the real value; leave-one-out
-  **17/17**, range +2.120 to +2.186.
+  adjustment **+2.224 → +1.762 (79% retained**, the most of the top-10 families, which kept
+  48–74%, median 64%; afterwards miR-29 is the most significant family, padj 1.7e−16 against
+  5.5e−08 for the next, miR-144-3p); UTR-matched null **z = 6.56**, 0 of 1,000 matched sets reached
+  the real value. *(Corrected 7 Nov: the old "~55–60%" and "eleven orders of magnitude, 1.7e−16 vs
+  3.1e−05" did not match `12_fibro_adjusted_fgsea.tsv`; 3.1e−05 is miR-30-5p, the top family
+  before adjustment, not the next family after it.)*
+- **Leave-one-out was run for BMD vs control and BMD vs DMD only, not for DMD vs control** — do
+  not list it as support for this DMD result. It belongs in §5.4.
 - **Three qualifications that must appear in this same subsection, not later:**
   1. **103 of 128 families reached padj < 0.05 in this comparison and 99 pointed the same way.**
      The positive control was therefore **not** evidence that miR-29 is special — essentially
@@ -287,7 +297,7 @@ the floor, R5 is the technical note.
 | COL1A2 | +2.043 | 1.4e−07 | +2.940 | 7.5e−12 | −0.897 | 4.2e−04 |
 | COL3A1 | +2.311 | 8.3e−09 | +3.260 | 4.6e−13 | −0.949 | 1.3e−04 |
 | COL5A1 | +1.919 | 1.4e−06 | +2.828 | 7.5e−11 | −0.910 | 8.5e−04 |
-| LOX | +2.607 | 2.4e−07 | +3.573 | 3.7e−11 | −0.966 | 3.1e−03 |
+| LOX | +2.607 | 2.3e−07 | +3.573 | 3.7e−11 | −0.966 | 3.1e−03 |
 
 - All five up in **both** diseases; all five up **significantly less in BMD**. COL1A1 is
   **2^4.058 ≈ 16.7×** in DMD versus **2^2.517 ≈ 5.7×** in BMD — Becker scars, roughly a third
@@ -385,8 +395,9 @@ the floor, R5 is the technical note.
 - **The real conclusion of this subsection, and it is a finding in its own right.** BMD's actual
   miR-29-specific excess is **+0.095 log2 ≈ 35% of the ruler** (BMD gap 0.1923 minus the
   UTR-matched 0.0973; 3'UTR length alone accounts for **42%** of the DMD ruler and **51%** of
-  BMD's gap). That is comfortably above the 14% floor, and at *f* = 35% the simulation catches it
-  **100% of the time** — **yet the honest test does not detect it (p = 0.084)**. The reason is
+  BMD's gap). That is comfortably above the 14% floor; the simulation already caught **100%** of
+  plants at *f* = 25% (no 35% point was run) — **yet the honest test does not detect it
+  (p = 0.084)**. The reason is
   that planting adds **the same constant shift to every BMD patient**, whereas our Becker patients
   span **2.5 to 60.8 years** and mild to severe. **The binding limit at n = 11 is
   patient-to-patient variability, which a planting simulation of this kind cannot model.** The
@@ -405,8 +416,11 @@ the floor, R5 is the technical note.
   identifiers.** Do **not** write that all arrays across both accessions were compared — they
   were not. Either weaken the sentence accordingly or run `scripts/check_duplicate_arrays.R`
   across all pairs before submission and report what it finds.
-- **Frame it as a technical caution, not an allegation.** Both deposits are from the same group
-  (Hoffman, CNMC); same-group re-deposit is routine. The point is that **metadata will not reveal
+- **Frame it as a technical caution, not an allegation.** The biopsies are from Hoffman's group at
+  CNMC, but the two accessions were deposited by **different groups**: GSE38417 in 2012 by Susan
+  Dorsey and Christopher Ward (University of Maryland Baltimore; its summary credits Hoffman's
+  histology), GSE109178 in 2018 from CNMC (contributor Hoffman). Re-using shared arrays is
+  legitimate. *(Corrected 7 Nov from GEO; the old text said "the same group".)* The point is that **metadata will not reveal
   it and merging would double-count samples**, halving standard errors with no new information —
   a real temptation when n = 11 is the field's binding constraint. Ship
   `scripts/check_duplicate_arrays.R` as the practical output.
@@ -579,20 +593,23 @@ Per-figure axis notes and worked example points are in `docs/figure_notes.md`.
 | Item | Status | Owner |
 |---|---|---|
 | Control ages | **Absent from GEO entirely.** Write `[UNVERIFIED]`; it cannot be resolved | — |
-| **Spot-check 2–3 GSM titles by hand on the GEO page** | Labels were parsed from GEO web endpoints and validated only against the expected 6/11/17/15 counts — a swap *inside* a group would be invisible. Ten minutes; it is the foundation under everything | Aziz |
+| ~~Spot-check 2–3 GSM titles by hand on the GEO page~~ | **Done 7 Nov, all 49 samples, not just 2–3:** GEO's own records match `01_sample_sheet.tsv` on group, title, age, severity, GPL570, vastus lateralis and CEL file name, with 0 mismatches. See `docs/verification_7nov.md` | done |
+| Goeman & Bühlmann 2007; Wu & Smyth 2012; Subramanian 2005; Efron & Tibshirani 2007 | **Cleared 7 Nov** against source text, with quotes and cautions in `docs/fact_check.md` | done |
+| Age-dependence of muscle collagen expression | **Partial, 7 Nov:** Schaiter 2024 (human) + Listrat 2026 (mouse); caveat wording drafted in `docs/fact_check.md` | Hamza |
+| **Eisenberg 2007 has a published correction** (*PNAS* 2008;105(1):399, PMC2224226) | Found 7 Nov; not yet read. Our Eisenberg facts have no recorded source-text check. **Read the paper and the correction before citing any Eisenberg number** | Hamza |
 | miRNA Tissue Atlas 2025 exact citation | **Cleared 7 Nov:** Rishik et al. 2025, *NAR* 53(D1):D129–D137, doi:10.1093/nar/gkae1036, the version the atlas site asks users to cite. See `docs/fact_check.md` | done |
 | Rubenstein et al. 2020 | **Corrected 7 Nov:** the PMID is **31937892** (*Sci Rep* 10:229, doi:10.1038/s41598-019-57110-6). The old 32042044 was a different paper. See `docs/fact_check.md` | done |
-| Age-dependence of muscle collagen expression | Needed for the §5.2 caveat; if unsourced by Saturday, write the caveat without it | Hamza |
-| **Goeman & Bühlmann 2007; Wu & Smyth 2012; Subramanian 2005; Efron & Tibshirani 2007** | **Required for §6.3. Highest-priority citations in the paper** | Hamza |
-| Eisenberg "5 BMD", "GSE3307 = same dataset" | Not found. **The checked figure is 6 BMD** | — |
-| Xie 2024 gene counts; the "13 genes" claim; Dadgar 2014 as the source of GSE109178; GSE157668 contents; the pig "18 upregulated" | Unverified. **Do not use** | — |
+| Eisenberg "5 BMD", "GSE3307 = same dataset" | Not found. **The checked figure is 6 BMD.** Likely origin of the confusion, per Dadgar 2014's text: GSE3307 is the Bakay et al. 2006 dataset, which has *"BMD (n = 5)"* | — |
+| Xie 2024 gene counts; the "13 genes" claim; GSE157668 contents; the pig "18 upregulated" | Unverified. **Do not use** | — |
+| Dadgar et al. 2014 as the source of GSE109178 | **Cleared 7 Nov.** GEO lists PMID 25313409 for GSE109178, and the paper describes *"49 patient muscle biopsies analyzed on HG-U133 plus 2.0 microarrays… 6 normal volunteers, 17 DMD, 11 BMD, 7 LGMD2I… and 8 LGMD2B"*. *J Cell Biol* 2014;207(1):139–158, doi:10.1083/jcb.201402079 | done |
 | GSM2934804 severity | Disputed; immaterial either way (NES +2.156 vs +2.169) | closed |
 
 **Cleared and safe to cite:** GSE109178 = 49 samples on GPL570, all vastus lateralis; the
 6/11/17/15 split with LGMD as 8 dysferlin + 7 FKRP; BMD ages 2.5–60.8; DMD ages 0.9–8.0; miR-29
-seed `AGCACCA` with members 29a/b/c-3p; and Eisenberg 2007's 6 BMD samples, miR-146b/miR-221 as
-the only BMD passes, linkage significant only in DMD and Miyoshi, and DMD miR-29c about 6-fold
-down with COL3A1 about 6× and COL1A2 about 5× up.
+seed `AGCACCA` with members 29a/b/c-3p; Dadgar et al. 2014 as the source publication. **Eisenberg
+2007's figures** (6 BMD samples, miR-146b/miR-221 as the only BMD passes, linkage significant only
+in DMD and Miyoshi, DMD miR-29c about 6-fold down with COL3A1 about 6× and COL1A2 about 5× up) are
+**on hold** until the paper and its 2008 correction are read (row above).
 
 ---
 
@@ -600,8 +617,8 @@ down with COL3A1 about 6× and COL1A2 about 5× up.
 
 | | Aziz | Hamza |
 |---|---|---|
-| **Fri 7 Nov** | Methods (§4) and Results (§5) from this file | Intro/Related Work; the §6.3 citations |
-| **Sat 8 Nov** | Discussion (§6) and Limitations (§7); figure captions | Limitations review; Data section; the age-collagen citation |
+| **Fri 6 Nov** | Methods (§4) and Results (§5) from this file | Intro/Related Work; the §6.3 citations |
+| **Sat 7 Nov** | Discussion (§6) and Limitations (§7); figure captions | Limitations review; Data section; the age-collagen citation |
 | **Sun 8 Nov** | Both: check every citation against its source, proofread, submit | |
 
 **Computation is frozen.** The only permitted runs are the two verification tasks in §10 (the GSM

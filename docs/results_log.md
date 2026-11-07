@@ -66,7 +66,7 @@ Residual df 31, eBayes prior df 4.23.
 | COL1A2 | +2.043 | 1.4e−07 | +2.940 | 7.5e−12 | −0.897 | 4.2e−04 |
 | COL3A1 | +2.311 | 8.3e−09 | +3.260 | 4.6e−13 | −0.949 | 1.3e−04 |
 | COL5A1 | +1.919 | 1.4e−06 | +2.828 | 7.5e−11 | −0.910 | 8.5e−04 |
-| LOX | +2.607 | 2.4e−07 | +3.573 | 3.7e−11 | −0.966 | 3.1e−03 |
+| LOX | +2.607 | 2.3e−07 | +3.573 | 3.7e−11 | −0.966 | 3.1e−03 |
 
 All five up in **both** diseases, and all five **less** up in BMD than in DMD. On the linear
 scale COL1A1 is 2^4.058 ≈ **16×** in DMD and 2^2.517 ≈ **5.7×** in BMD.
@@ -126,8 +126,9 @@ COL15A1, COL16A1, COL1A1, COL1A2, COL21A1, COL27A1, COL3A1, COL4A1, COL4A2, COL4
 COL5A2, COL5A3, COL6A2, COL6A3, COL6A6, CRISPLD1, ELN, FBN1, FRAS1, HMCN1, LAMA2, LAMC1, MFAP2,
 MFAP3, NID1, PXDN, SKI, SPARC, SVEP1.
 
-miR-29's leading edge is **6.5% fibrosis-set genes — the highest of any top family** (next
-highest 4.1%, most are 1–3%). That is a specificity signal in the content, independent of the p-value.
+miR-29's leading edge is **6.5% fibrosis-set genes — the highest of the 25 top families** (leading
+edges were extracted for these 25 only; next highest 5.3%, miR-381-3p; most are 1–3%; corrected
+7 Nov from `07_leading_edge_summary.tsv`, was "4.1%"). That is a specificity signal in the content, independent of the p-value.
 
 | BMD/DMD footprint agreement across 128 families | value |
 |---|---|
@@ -311,8 +312,11 @@ miR-29 survives in all three:
 | BMD − DMD | −1.590 → −1.300 | 7.1e−03 |
 
 **Second specificity signal:** adjusting for fibroblast content halves the number of significant
-families (103 → 51) but miR-29 retains more of its NES than the other top families (79% vs
-~55–60%), and afterwards it leads by eleven orders of magnitude (1.7e−16 vs 3.1e−05 next).
+families (103 → 51) but miR-29 retains more of its NES than the other top-10 families (79% vs
+48–74%, median 64%), and afterwards it is the most significant family (padj 1.7e−16 vs 5.5e−08 for
+the next, miR-144-3p). *Corrected 7 Nov from `12_fibro_adjusted_fgsea.tsv`: the old "~55–60%" and
+"eleven orders of magnitude, 3.1e−05 next" were wrong; 3.1e−05 is miR-30-5p, the top family before
+adjustment.*
 Caveat per CLAUDE.md §12: this covariate also absorbs real disease signal, so read it as
 "does the footprint survive", not as the headline estimate.
 

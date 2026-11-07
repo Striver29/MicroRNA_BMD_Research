@@ -95,13 +95,20 @@ Verified at the raw-data level, not by metadata:
 | cells differing | **0** |
 
 Both are HG-U133_Plus_2. Both carry the same lab-internal array IDs
-(`MIDO-CTRL_Pos-1UP` … `Pos-6UP`, `MIDO-DMD_Pos-11UP` …). Same lab (Hoffman, CNMC).
+(`MIDO-CTRL_Pos-1UP` … `Pos-6UP`, `MIDO-DMD_Pos-11UP` …). The biopsies are Hoffman's (CNMC),
+but **the two accessions were deposited by different groups** (checked against GEO on 7 Nov):
+GSE38417 on 1 Jun 2012 by Susan G. Dorsey and Christopher W. Ward, University of Maryland
+Baltimore (its summary credits Hoffman's histology at CNMC; no PubMed link); GSE109178 on
+14 Jan 2018 from CNMC (contributor Eric P. Hoffman). The earlier note "Same lab (Hoffman, CNMC)"
+was wrong. GSM941830's CEL file is `GSM941830_MIDO-CTRL_Pos-1UP.CEL`, the same internal ID as
+`GSM2934813_MIDO-CTRL_Pos-1UP.CEL` (confirmed on GEO). GSE38417 has 22 samples.
 Only the GEO accession and the CEL file encoding (text vs binary) differ.
 
 **Consequence if this had been missed:** merging the two accessions would have double-counted
 6 controls and ~16 DMD samples. Standard errors would have fallen by roughly sqrt(2) with no
 new information, and miR-29's DMD-vs-control patient-shuffle p of 0.052 would probably have
 crossed 0.05 — a "significant" result manufactured entirely by duplication.
+`[SPECULATION — not computed; do not cite. WRITEUP_PLAN §9 forbids this sentence.]`
 
 **Rule for this project:** before merging ANY GEO accession, compare raw CEL intensities
 against the samples already held. Matching `Sample_title` / filename stems are a red flag;
