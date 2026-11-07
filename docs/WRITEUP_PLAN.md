@@ -580,8 +580,8 @@ Per-figure axis notes and worked example points are in `docs/figure_notes.md`.
 |---|---|---|
 | Control ages | **Absent from GEO entirely.** Write `[UNVERIFIED]`; it cannot be resolved | — |
 | **Spot-check 2–3 GSM titles by hand on the GEO page** | Labels were parsed from GEO web endpoints and validated only against the expected 6/11/17/15 counts — a swap *inside* a group would be invisible. Ten minutes; it is the foundation under everything | Aziz |
-| miRNA Tissue Atlas 2025 exact citation | Lineage recorded (gkw116 → gkab808 → gkae1036); which is the 2025 release is unchecked | Hamza |
-| Rubenstein et al. 2020 PMID 32042044 | Taken from MSigDB metadata, not checked against the paper | Hamza |
+| miRNA Tissue Atlas 2025 exact citation | **Cleared 7 Nov:** Rishik et al. 2025, *NAR* 53(D1):D129–D137, doi:10.1093/nar/gkae1036, the version the atlas site asks users to cite. See `docs/fact_check.md` | done |
+| Rubenstein et al. 2020 | **Corrected 7 Nov:** the PMID is **31937892** (*Sci Rep* 10:229, doi:10.1038/s41598-019-57110-6). The old 32042044 was a different paper. See `docs/fact_check.md` | done |
 | Age-dependence of muscle collagen expression | Needed for the §5.2 caveat; if unsourced by Saturday, write the caveat without it | Hamza |
 | **Goeman & Bühlmann 2007; Wu & Smyth 2012; Subramanian 2005; Efron & Tibshirani 2007** | **Required for §6.3. Highest-priority citations in the paper** | Hamza |
 | Eisenberg "5 BMD", "GSE3307 = same dataset" | Not found. **The checked figure is 6 BMD** | — |

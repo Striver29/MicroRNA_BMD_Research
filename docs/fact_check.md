@@ -52,13 +52,18 @@ at ~12 y** (our DMD vs BMD medians). The best available evidence supports a broa
 > lower in adult than in infant human muscle [Schaiter 2024]. Part of the smaller collagen
 > increase in BMD may therefore reflect age rather than milder disease.
 
+### Input-source citations (WRITEUP_PLAN §4.5, §4.9, §10): both CLEARED, one CORRECTED
+
+| Citation | Checked against | Result |
+|---|---|---|
+| **miRNA Tissue Atlas 2025** (muscle-expression filter) → **Rishik S, Hirsch P, Grandke F, Fehlmann T, Keller A.** miRNATissueAtlas 2025: an update to the uniformly processed and annotated human and mouse non-coding RNA tissue atlas. *Nucleic Acids Res* 2025;**53**(D1):D129–D137. doi:10.1093/nar/gkae1036 | The atlas home page (`web.ccb.uni-saarland.de/mirnatissueatlas_2025`) and Crossref | **CLEARED.** The site says: *"If you use miRNATissueAtlas please cite the latest version below: Rishik S, Hirsch P, Grandke F, Fehlmann T, Keller A. miRNATissueAtlas 2025 …"*. The other two DOIs on the page are the earlier versions: v1 = Ludwig et al. 2016, *NAR* 44(8):3865–3877 (gkw116); v2 = Keller et al. 2022, *NAR* 50(D1):D211–D221 (gkab808). Cite gkae1036 only. The site gives the year as 2024 (online); the issue is Jan 2025, so cite 2025. *Not re-confirmed:* the parquet file name on the downloads page, which lists files via JavaScript. Retrieval on 2026-11-01 is logged in `docs/handoffs.md`. |
+| **Rubenstein AB, Smith GR, Raue U, et al.** Single-cell transcriptional profiles in human skeletal muscle. *Sci Rep* 2020;**10**:229. doi:10.1038/s41598-019-57110-6. **PMID 31937892**. PMC6959232 | MSigDB gene-set pages for both `RUBENSTEIN_SKELETAL_MUSCLE_FAP_CELLS` (M41745) and `…_FBN1_FAP_CELLS` (M41750), plus the PubMed record via Europe PMC | **CORRECTED.** The PMID we had recorded, **32042044, is wrong**: it is Byun et al. 2020, *Nat Commun* 11:807, a liver-autophagy paper. MSigDB lists PMID 31937892 for both sets, so the earlier note "taken from MSigDB metadata" was also wrong; where 32042044 came from is unknown. Content fits our use: the abstract reports scRNA-seq of mononuclear cells *"from human vastus lateralis"* (the same muscle as GSE109178) and *"two fibro-adipogenic progenitor (FAP) cell subtypes"*. MSigDB's exact source is Supplementary Table S1; dataset GSE130646. Fixed on 7 Nov in `scripts/build_inputs.R`, the `source` column of `inputs/auto/fibroblast_markers.tsv` and `docs/WRITEUP_PLAN.md`. **No rerun needed:** no script reads the `source` column. |
+
 ## Still unverified — do not put in the paper yet
 
 | Item | Why it is unverified |
 |---|---|
 | Control ages and sexes in GSE109178 | `[UNVERIFIED]` — **not reported in GEO at all.** All 6 control records have `age: NA` and no sex. CLAUDE.md §2 asked us to record them; they do not exist in the source. The age confound therefore **cannot be resolved** and must be stated as a limitation. See §Age confound below. |
-| miRNA Tissue Atlas 2025 exact citation | `[UNVERIFIED]` — the download page lists three DOIs (gkw116, gkab808, gkae1036); which one is the 2025 release has not been checked against the papers. |
-| Rubenstein et al. 2020 PMID 32042044 | `[UNVERIFIED]` — PMID taken from the MSigDB C8 set metadata, not checked against the paper. |
 | Reschke et al. 2026 pig microRNA list and directions | `[UNVERIFIED]` — Table 1 not obtained. Step 15 BLOCKED. |
 | Eisenberg "5 BMD", "GSE3307 = same dataset" | still not found. Do not use. |
 | Xie 2024 gene counts; the "13 genes" claim; Dadgar 2014 as the source of GSE109178; the pig "18 upregulated"; GSE157668 contents | unchanged from CLAUDE.md §11. Do not use. |

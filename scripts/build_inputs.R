@@ -106,7 +106,7 @@ fapsets <- c("RUBENSTEIN_SKELETAL_MUSCLE_FAP_CELLS", "RUBENSTEIN_SKELETAL_MUSCLE
 fap <- unique(c8[gs_name %in% fapsets, toupper(gene_symbol)])
 stopifnot(length(fap) > 100)
 fmk <- data.table(gene_symbol = sort(fap),
-                  source = sprintf("MSigDB %s C8: %s (Rubenstein et al. 2020, PMID 32042044)",
+                  source = sprintf("MSigDB %s C8: %s (Rubenstein et al. 2020, PMID 31937892)",
                                    mdb_ver, paste(fapsets, collapse = " + ")))
 fmk[, in_fibrosis_set := gene_symbol %in% c(core, tgfb)]
 cat("fibroblast markers:", nrow(fmk), " of which also in a fibrosis set:",
